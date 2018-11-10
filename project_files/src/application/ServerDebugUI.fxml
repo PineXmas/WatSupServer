@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane prefHeight="800.0" prefWidth="600.0"
+	xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
+	fx:controller="application.Controller">
+	<children>
+		<Button fx:id="btnStart" layoutX="14.0" layoutY="14.0"
+			mnemonicParsing="false" onAction="#onBtnStart_Click"
+			prefHeight="50.0" prefWidth="100.0" text="Start" />
+		<Button fx:id="btnStop" layoutX="132.0" layoutY="14.0"
+			mnemonicParsing="false" prefHeight="50.0" prefWidth="100.0"
+			text="Stop" />
+		<TextArea fx:id="txtDisplay" layoutX="286.0" layoutY="14.0"
+			prefHeight="771.0" prefWidth="300.0" />
+		<Button fx:id="btnRoomList" layoutX="12.0" layoutY="76.0"
+			mnemonicParsing="false" prefHeight="51.0" prefWidth="222.0"
+			text="Room list" />
+		<Label layoutX="14.0" layoutY="148.0" text="Room name" />
+		<TextField fx:id="txtRoomName" layoutX="14.0"
+			layoutY="183.0" prefHeight="51.0" prefWidth="222.0" />
+		<Button fx:id="btnRoomMessages" layoutX="12.0" layoutY="241.0"
+			mnemonicParsing="false" prefHeight="51.0" prefWidth="222.0"
+			text="Room messages" />
+		<Button fx:id="btnUserList" layoutX="12.0" layoutY="324.0"
+			mnemonicParsing="false" prefHeight="51.0" prefWidth="222.0"
+			text="User list" />
+		<Button fx:id="btnSysMessageHistory" layoutX="14.0"
+			layoutY="386.0" mnemonicParsing="false" prefHeight="51.0"
+			prefWidth="222.0" text="Sys. message history" />
+	</children>
+</AnchorPane>
