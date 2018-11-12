@@ -2,6 +2,7 @@ package application;
 
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 
 public class WSServer {
 	
@@ -17,21 +18,24 @@ public class WSServer {
 	 * MEMBERS
 	 ***********************************************/
 	
-	public Object listRooms;
-	public Object listUsers;
-	public int portNumber;
-	public int maxRooms;
-	public int maxUsers;
-	public Object sendingMsgPool;
-	public Object receivingMsgPool;
-	public Object msgSender;
-	public Object msgReceiver;
-	public Thread connectionListener;
+	Object listRooms;
+	Object listUsers;
+	int portNumber;
+	int maxRooms;
+	int maxUsers;
+	Object sendingMsgPool;
+	Object receivingMsgPool;
+	Object msgSender;
+	Object msgReceiver;
+	Thread connectionListener;
 	
-	//socket
-	public ServerSocket listeningSocket;
-	public Boolean isServerRunning;
+	//server socket
+	ServerSocket listeningSocket;
+	Boolean isServerRunning;
 	Object lock_isServerRunning = new Object();
+	
+	//client sockets
+	ArrayList<WSClientHandler> listClientSockets = new ArrayList<>();
 	
 	/***********************************************
 	 * CONSTRUCTORS
@@ -76,10 +80,12 @@ public class WSServer {
 					while (true) {
 						ErrandBoy.println("Waiting for new connection...");
 						Socket clientSocket = listeningSocket.accept();
-						ErrandBoy.println("Connected to client at " + clientSocket.getInetAddress().toString() + ", port " + clientSocket.getPort());
+						ErrandBoy.println("Connected to client at " + clientSocket.getInetAddress().getHostName() + ", port " + clientSocket.getPort());
 						
-						// TODO assign the socket to a client-dealer
-						
+						//assign client to a dealer for further handling
+						WSClientHandler dealer = new WSClientHandler(clientSocket);
+						listClientSockets.add(dealer);
+						dealer.listen();
 					}
 				} catch (Exception e) {
 					ErrandBoy.printlnError(e, "Error when waiting for new connection");
@@ -141,5 +147,12 @@ public class WSServer {
 				ErrandBoy.printlnError(e, "Error when interrupting listening thread");
 			}
 		}
+		
+		//stop all client handlers & empty the list
+		for (WSClientHandler handler : listClientSockets) {
+			handler.close();
+		}
+		listClientSockets.clear();
+		
 	}
 }
