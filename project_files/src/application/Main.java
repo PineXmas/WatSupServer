@@ -29,7 +29,7 @@ public class Main extends Application {
 	public void start_02(Stage primaryStage) {
 		try {
 			Parent root = FXMLLoader.load( getClass().getResource("ServerDebugUI.fxml"));
-			Scene scene = new Scene(root,600,800);
+			Scene scene = new Scene(root);
 			
 			//add styles to the scene
 			//scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
