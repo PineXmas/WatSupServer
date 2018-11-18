@@ -3,6 +3,7 @@ package application;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.concurrent.BlockingQueue;
 
 public class WSServer {
 	
@@ -18,21 +19,20 @@ public class WSServer {
 	 * MEMBERS
 	 ***********************************************/
 	
+	//chat data
 	Object listRooms;
 	Object listUsers;
 	int portNumber;
 	int maxRooms;
 	int maxUsers;
-	Object sendingMsgPool;
-	Object receivingMsgPool;
-	Object msgSender;
-	Object msgReceiver;
-	Thread connectionListener;
 	
 	//server socket
 	ServerSocket listeningSocket;
 	Boolean isServerRunning;
 	Object lock_isServerRunning = new Object();
+	BlockingQueue<Integer> receivingMsgQueue;
+	Thread msgReceiver;
+	Thread connectionListener;
 	
 	//client sockets
 	ArrayList<WSClientHandler> listClientSockets = new ArrayList<>();
@@ -83,7 +83,7 @@ public class WSServer {
 						ErrandBoy.println("Connected to client at " + clientSocket.getInetAddress().getHostName() + ", port " + clientSocket.getPort());
 						
 						//assign client to a dealer for further handling
-						WSClientHandler dealer = new WSClientHandler(clientSocket);
+						WSClientHandler dealer = new WSClientHandler(clientSocket, receivingMsgQueue);
 						listClientSockets.add(dealer);
 						dealer.listen();
 					}
@@ -110,7 +110,28 @@ public class WSServer {
 			}
 		});
 		
-		//... thread
+		//message receiver thread
+		msgReceiver = new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				if (receivingMsgQueue == null) {
+					ErrandBoy.println("Received-message queue is not init. Receiver quits.");
+					return;
+				}
+				
+				try {
+					//TODO change to WSMessage type
+					int a = 1;
+					
+					while (isServerRunning && (a = 3) > 2) {
+						
+					}
+				} catch (Exception e) {
+					ErrandBoy.printlnError(e, "Error when processing received messages");
+				}
+			}
+		});
 	}
 	
 	/***********************************************

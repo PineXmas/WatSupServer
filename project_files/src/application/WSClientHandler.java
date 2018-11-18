@@ -1,16 +1,17 @@
 package application;
 
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.Socket;
+import java.util.concurrent.BlockingQueue;
 
 public class WSClientHandler {
 	Socket clientSocket;
 	Thread listener;
+	final BlockingQueue<Integer> receivingMsgQueue;
 	
-	public WSClientHandler(Socket clientSocket) {
+	public WSClientHandler(Socket clientSocket, BlockingQueue<Integer> receivingMsgQueue) {
 		this.clientSocket = clientSocket;
+		this.receivingMsgQueue = receivingMsgQueue;
 		
 		//set up listener thread
 		listener = new Thread(new Runnable() {
