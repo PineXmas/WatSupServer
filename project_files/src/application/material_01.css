@@ -1,0 +1,17 @@
+:root {
+    --background-color: #00ffaa;
+}
+
+.button {
+    -fx-background-color: #666666;
+    -fx-text-fill: #eeeeee;
+}
+
+.text-field {
+    -fx-text-fill: #ffffff;
+    -fx-background-color: #333333;
+}
+
+.anchor-pane {
+    -fx-background-color: #333333;
+}
