@@ -2,6 +2,7 @@ package application;
 
 import java.io.InputStream;
 import java.net.Socket;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.concurrent.BlockingQueue;
 
@@ -37,10 +38,15 @@ public class WSClientHandler {
 						}
 						
 						//parse read bytes into messages
-						listMsgs = WSMessage.parse2Msgs(buff, arrIncompleteMsg, listNewIncompleteMsg);
+						byte[] actualReadBuff = ByteBuffer.allocate(readBytes).put(buff, 0, readBytes).array();
+						listMsgs = WSMessage.parse2Msgs(actualReadBuff, arrIncompleteMsg, listNewIncompleteMsg);
+						ErrandBoy.println("  Read " + listMsgs.size() + " complete msgs from client " + getClientName(clientSocket));
 						
 						//update incomplete message
 						arrIncompleteMsg = ErrandBoy.convertList2Array(listNewIncompleteMsg);
+						if (arrIncompleteMsg.length > 0) {
+							ErrandBoy.println("  Incomplete msg from client " + getClientName(clientSocket) + ": " + new String(arrIncompleteMsg));
+						}
 						
 						//enqueue messages
 						for (WSMessage msg : listMsgs) {

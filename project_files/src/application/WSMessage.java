@@ -98,6 +98,7 @@ public abstract class WSMessage {
 		currDataLength = getDataLength(arrIncompleteMsg);
 		remainingBytes = getRemainingBytes2Read(arrIncompleteMsg);
 		
+		
 		//read bytes & construct messages
 		while (currPos < arrReadBytes.length) {
 			
@@ -139,6 +140,17 @@ public abstract class WSMessage {
 			
 			//decrease remaining-bytes-to-read
 			--remainingBytes;
+		}
+		
+		//try to finalize the incomplete message before exit
+		if (currOpcode != -1 && currDataLength != -1 && remainingBytes == 0) {
+			//TODO create specific message based on its opcode here. Return dummy message for now
+			/*
+			 * the function will look like this: create-specific-message(opcode, data-length, data)
+			 */
+			WSMDummy msgDummy = new WSMDummy(currOpcode, currDataLength, ErrandBoy.convertList2Array(listNewIncompleteMsg), null);
+			listComplete.add(msgDummy);
+			listNewIncompleteMsg.clear();
 		}
 		
 		return listComplete;
