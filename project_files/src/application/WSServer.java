@@ -3,7 +3,7 @@ package application;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class WSServer {
 	
@@ -30,7 +30,7 @@ public class WSServer {
 	ServerSocket listeningSocket;
 	Boolean isServerRunning;
 	Object lock_isServerRunning = new Object();
-	BlockingQueue<Integer> receivingMsgQueue;
+	LinkedBlockingQueue<WSMessage> receivingMsgQueue;
 	Thread msgReceiver;
 	Thread connectionListener;
 	
@@ -47,11 +47,12 @@ public class WSServer {
 	
 	public WSServer(int portNumber, int maxRooms, int maxUsers) {
 		
-		//settings
+		//initialization
 		this.portNumber = portNumber;
 		this.maxRooms = maxRooms ;
 		this.maxUsers = maxUsers ;
 		isServerRunning = false;
+		receivingMsgQueue = new LinkedBlockingQueue<>();
 		
 		/*
 		 * set up threads 
@@ -121,12 +122,14 @@ public class WSServer {
 				}
 				
 				try {
-					//TODO change to WSMessage type
-					int a = 1;
-					
-					while (isServerRunning && (a = 3) > 2) {
-						
+					ErrandBoy.println("Waiting to process messages in the queue...");
+					WSMessage msg;
+					while ( !((msg = receivingMsgQueue.take()) instanceof WSMStopSerer)) {
+						//TODO process messages here. Print to console for now
+						ErrandBoy.println("Client " + WSClientHandler.getClientName(msg.sender) + " sent: " + msg.toString());
 					}
+					
+					ErrandBoy.println("Receiver-thread has stopped");
 				} catch (Exception e) {
 					ErrandBoy.printlnError(e, "Error when processing received messages");
 				}
@@ -138,7 +141,9 @@ public class WSServer {
 	 * METHODS
 	 ***********************************************/
 	
-	//start listening socket at local-host & wait for connection from users
+	/**
+	 * Start listening socket at local-host & wait for connection from users
+	 */
 	public void Start() {
 		try {
 			//do nothing if the server is already running
@@ -152,12 +157,17 @@ public class WSServer {
 			//create the socket & start the listening thread
 			listeningSocket = new ServerSocket(portNumber);
 			connectionListener.start();
+			
+			//start message-receiver-thread
+			msgReceiver.start();
 		} catch (Exception e) {
 			ErrandBoy.printlnError(e, "Error when starting server");
 		}
 	}
 	
-	//stop all activities running in the server
+	/**
+	 * Stop all activities running in the server
+	 */
 	public void Stop() {
 		
 		//stop listening socket
@@ -174,6 +184,20 @@ public class WSServer {
 			handler.close();
 		}
 		listClientSockets.clear();
+		
+		//stop the receiver-thread
+		new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				try {
+					receivingMsgQueue.put(new WSMStopSerer(-1, -1, null));
+				} catch (Exception e) {
+					ErrandBoy.printlnError(e, "Error when trying to enqueue WSMStopServer to stop receiver-thread");
+				}
+				
+			}
+		}).start();
 		
 	}
 }

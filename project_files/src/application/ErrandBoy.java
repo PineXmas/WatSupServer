@@ -2,6 +2,7 @@ package application;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.util.ArrayList;
 
 /**
  * This class provide utilities for WatSup system. Use this to:
@@ -14,6 +15,8 @@ import java.io.PrintStream;
  *
  */
 public abstract class ErrandBoy {
+	
+	static boolean isPrintStackTrace = false;
 	
 	public static void Test() {
 		System.out.println("hello");
@@ -41,12 +44,32 @@ public abstract class ErrandBoy {
 	 * @param errHeadline the headline
 	 */
 	synchronized public static void printlnError(Exception e, String errHeadline) {
-		System.out.println(errHeadline);
+		System.out.print(errHeadline);
 		
 		//get error stack trace into string & print to console
-		ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
-		PrintStream printStream = new PrintStream(byteStream);
-		e.printStackTrace(printStream);
-		System.out.println(byteStream.toString());
+		if (isPrintStackTrace) {
+			ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
+			PrintStream printStream = new PrintStream(byteStream);
+			e.printStackTrace(printStream);
+			System.out.println();
+			System.out.println(byteStream.toString());
+		} else {
+			System.out.println(" (" + e.toString() + ")");
+		}
+	}
+	
+	/**
+	 * Convert the given array-list of bytes to array of primitive-bytes
+	 * @param listBytes
+	 * @return
+	 */
+	public static byte[] convertList2Array(ArrayList<Byte> listBytes) {
+		byte[] arr = new byte[listBytes.size()];
+		
+		for (int i = 0; i < arr.length; i++) {
+			arr[i] = listBytes.get(i);
+		}
+		
+		return arr;
 	}
 }

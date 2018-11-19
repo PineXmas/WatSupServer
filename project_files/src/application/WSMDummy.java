@@ -1,19 +1,22 @@
 package application;
 
-public class WSMDummy extends WSMessage {
-	private String rawText;
-	
-	public WSMDummy(int opcode, int dataLength, byte[] data) {
-		super(opcode, dataLength, data);
-	}
+import java.net.Socket;
 
-	String getDataAsText() {
-		return rawText;
+public class WSMDummy extends WSMessage {
+	public String dataAsText;
+	
+	public WSMDummy(int opcode, int dataLength, byte[] data, Socket sender) {
+		super(opcode, dataLength, data, sender);
 	}
 
 	@Override
 	public void parseToAttributes() {
-		rawText = new String(data);
+		dataAsText = new String(data, 8, dataLength);
+	}
+
+	@Override
+	public String toString() {
+		return opcode + "|" + dataLength + "|" + dataAsText;
 	}
 
 }
