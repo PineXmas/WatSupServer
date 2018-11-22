@@ -1,9 +1,10 @@
 package application;
 
-import java.io.ByteArrayOutputStream;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 
 public abstract class WSMessage {
 	
@@ -11,9 +12,9 @@ public abstract class WSMessage {
 	 * [MEMBERS]
 	 ***********************************************/
 	
-	WSMCode opcode;
-	int dataLength;
-	byte[] data;
+	WSMCode opcode = WSMCode.OPCODE_UNKNOWN;
+	int dataLength = 0;
+	byte[] msgBytes = {};
 	Socket sender;
 	
 	/***********************************************
@@ -74,6 +75,27 @@ public abstract class WSMessage {
 	}
 	
 	/**
+	 * Create the specific message according to the given opcode. The created message is always a subclass of the class WSMessage.
+	 * @param opcode
+	 * @param dataLength
+	 * @param msgBytes the message in forms of array of bytes
+	 * @return
+	 */
+	static public WSMessage createSpecificMsg(int opcode, int dataLength, byte[] msgBytes) {
+		WSMCode code = WSMCode.GetCode(opcode);
+		
+		switch (code) {
+		case OPCODE_LOGIN:
+			return new WSMLogin(opcode, dataLength, msgBytes, null);
+
+		default:
+			break;
+		}
+		
+		return new WSMUnknown(opcode, dataLength, msgBytes, null);
+	}
+	
+	/**
 	 * Parse the given byte-array into messages (and return leftover bytes if available)
 	 * @param arrReadBytes array of bytes read from the input stream
 	 * @param arrIncompleteMsg array of bytes from an incomplete message
@@ -104,12 +126,8 @@ public abstract class WSMessage {
 			
 			//check for complete message: add to complete-list & reset the incomplete message
 			if (currOpcode != -1 && currDataLength != -1 && remainingBytes == 0) {
-				//TODO create specific message based on its opcode here. Return dummy message for now
-				/*
-				 * the function will look like this: create-specific-message(opcode, data-length, data)
-				 */
-				WSMDummy msgDummy = new WSMDummy(currOpcode, currDataLength, ErrandBoy.convertList2Array(listNewIncompleteMsg), null);
-				listComplete.add(msgDummy);
+				WSMessage msg = createSpecificMsg(currOpcode, currDataLength, ErrandBoy.convertList2Array(listNewIncompleteMsg));
+				listComplete.add(msg);
 				
 				currOpcode = -1;
 				currDataLength = -1;
@@ -148,7 +166,7 @@ public abstract class WSMessage {
 			/*
 			 * the function will look like this: create-specific-message(opcode, data-length, data)
 			 */
-			WSMDummy msgDummy = new WSMDummy(currOpcode, currDataLength, ErrandBoy.convertList2Array(listNewIncompleteMsg), sender);
+			WSMUnknown msgDummy = new WSMUnknown(currOpcode, currDataLength, ErrandBoy.convertList2Array(listNewIncompleteMsg), sender);
 			listComplete.add(msgDummy);
 			listNewIncompleteMsg.clear();
 		}
@@ -157,24 +175,61 @@ public abstract class WSMessage {
 	}
 	
 	/**
-	 * Parse the given bytes into a label, which could be used for user name or room name
-	 * @param arrBytes the bytes containing the label 
+	 * Parse the given bytes into a label, which could be used for user name or room name.
+	 * @param arrBytes the byte-array containing the label
+	 * @param offset beginning index of the label-segment in the array
+	 * @param length length of the label-segment in the array, mostly equal LABEL_SIZE
 	 * @return
 	 */
-	static public String parse2String(byte[] arrBytes) {
-		int length = -1;
-		for (int i = 0; i < arrBytes.length; i++) {
+	static public String parse2String(byte[] arrBytes, int offset, int length) {
+		int labelLength = length;
+		for (int i = offset; i < offset + length; i++) {
 			if (arrBytes[i] == 0) {
-				length = i;
+				labelLength = i-offset;
 				break;
 			}
 		}
 		
-		if (length == -1) {
-			return new String(arrBytes);
+		return new String(arrBytes, offset, labelLength);
+	}
+	
+	/**
+	 * Present the given byte segment as a string of hex values 
+	 * @param data a byte array
+	 * @param offset starting index
+	 * @param length length of bytes to process
+	 * @return
+	 */
+	public static String displayBytes(byte[] data, int offset, int length) {
+		StringBuilder sb = new StringBuilder();
+		for (int i = offset; i < offset + length; i++) {
+			sb.append(String.format("%02x ", data[i]));
 		}
 		
-		return new String(arrBytes, 0, length);
+		return sb.toString();
+	}
+	
+    /**
+     * Generate the an array of 8 bytes storing opcode & data-length (0) only. Useful for message without additional data.
+     * @param opcode
+     * @param dataLength
+     * @return
+     */
+	public static byte[] genBasicMsgBytes(int opcode, int dataLength) {
+		return ByteBuffer.allocate(8).putInt(opcode).putInt(dataLength).array();
+	}
+	
+	/**
+	 * Shorten the given label if it is longer than LABEL_SIZE
+	 * @param label
+	 * @return the shortened label
+	 */
+	public static String verifyLabelLength(String label) {
+		if (label.length() > WSSettings._LABEL_SIZE) {
+			return label.substring(0, WSSettings._LABEL_SIZE);
+		}
+		
+		return label;
 	}
 	
 	/***********************************************
@@ -184,44 +239,40 @@ public abstract class WSMessage {
 	public WSMessage() {
 	}
 	
-	public WSMessage(int opcode, int dataLength, byte[] data) {
-		this(opcode, dataLength, data, null);
+	public WSMessage(int opcode, int dataLength, byte[] msgBytes) {
+		this(opcode, dataLength, msgBytes, null);
 	}
 	
 	/**
 	 * This constructor mostly is used in case the message is received from a socket-input-stream
 	 * @param opcode first 4 byte of the message
 	 * @param dataLength next 4 byte of the message
-	 * @param data remaining bytes of the message
+	 * @param msgBytes remaining bytes of the message
 	 * @param sender the socket where the message is received (optional, could be NULL)
 	 */
-	public WSMessage(int opcode, int dataLength, byte[] data, Socket sender) {
+	public WSMessage(int opcode, int dataLength, byte[] msgBytes, Socket sender) {
 		this.opcode = WSMCode.GetCode(opcode);
 		this.dataLength = dataLength;
-		this.data = data;
+		this.msgBytes = msgBytes;
 		this.sender = sender;
 		
 		parse2Attributes();
 	}
 	
 	/**
-	 * Concatenate opcode +  data-length + data => message ready to send
-	 * @return the message or NULL if error occurs
+	 * Present the message-bytes in forms of decimal values. </br>
+	 * *** <strong> DO NOT</strong> use inherited class's attributes to display
 	 */
-	public byte[] formatToSend() {
-		// TODO (NOTE) if length of chars cause problem, consider changing to 2-byte chars
-		
-		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-		try {
-			outputStream.write(ByteBuffer.allocate(4).putInt(opcode.rawCode).array());
-			outputStream.write(ByteBuffer.allocate(4).putInt(dataLength).array());
-			outputStream.write(data);
-			return outputStream.toByteArray();
-		} catch (Exception e) {
-			ErrandBoy.printlnError(e, "Error when formating message to send");
-			return null;
-		}
+	public String toStringOfBytes() {
+		return 
+				displayBytes(msgBytes, 0, 4) + "|" +
+				displayBytes(msgBytes, 4, 4)
+				;
 	}
+	
+	/***********************************************
+	 * [ABSTRACT METHODS]
+	 ***********************************************/
 	
 	/**
 	 * Parse the data-bytes into different attributes, depending on particular message types.
@@ -233,8 +284,89 @@ public abstract class WSMessage {
 	 */
 	public abstract String toString();
 	
-	// DEBUG: test functions in this WSMessage class
+	/***********************************************
+	 * [TESTING]
+	 ***********************************************/
+	
 	public static void main() {
+		testMessages();
+	}
+	
+	public static void testMessages() {
+//		//test message: LOGIN
+//		WSMLogin msgLogin = new WSMLogin("abcd");
+//		ErrandBoy.println(msgLogin.toString());
+//		ErrandBoy.println(msgLogin.toStringOfBytes());
+//		ErrandBoy.println("-----------------------------------------------");
+//		WSMLogin msgLogin02 = new WSMLogin(msgLogin.opcode.rawCode, msgLogin.dataLength, msgLogin.msgBytes, null);
+//		ErrandBoy.println(msgLogin02.toString());
+//		ErrandBoy.println(msgLogin02.toStringOfBytes());
+//		ErrandBoy.println("-----------------------------------------------");
 		
+//		//test message: LOGOUT
+//		WSMLogout msgLogout = new WSMLogout();
+//		ErrandBoy.println(msgLogout.toString());
+//		ErrandBoy.println(msgLogout.toStringOfBytes());
+//		ErrandBoy.println("-----------------------------------------------");
+//		WSMLogout msgLogout02 = new WSMLogout(msgLogout.opcode.rawCode, msgLogout.dataLength, msgLogout.msgBytes, null);
+//		ErrandBoy.println(msgLogout02.toString());
+//		ErrandBoy.println(msgLogout02.toStringOfBytes());
+//		ErrandBoy.println("-----------------------------------------------");
+		
+//		//test message: LOGIN_SUCCESS
+//		WSMLoginSuccess msgLoginSuccess = new WSMLoginSuccess();
+//		ErrandBoy.println(msgLoginSuccess.toString());
+//		ErrandBoy.println(msgLoginSuccess.toStringOfBytes());
+//		ErrandBoy.println("-----------------------------------------------");
+//		WSMLoginSuccess msgLoginSuccess02 = new WSMLoginSuccess(msgLoginSuccess.opcode.rawCode, msgLoginSuccess.dataLength, msgLoginSuccess.msgBytes, null);
+//		ErrandBoy.println(msgLoginSuccess02.toString());
+//		ErrandBoy.println(msgLoginSuccess02.toStringOfBytes());
+//		ErrandBoy.println("-----------------------------------------------");
+		
+//		//test message: KEEPALIVE
+//		WSMKeepAlive msgKeepAlive = new WSMKeepAlive();
+//		ErrandBoy.println(msgKeepAlive.toString());
+//		ErrandBoy.println(msgKeepAlive.toStringOfBytes());
+//		ErrandBoy.println("-----------------------------------------------");
+//		WSMKeepAlive msgKeepAlive02 = new WSMKeepAlive(msgKeepAlive.opcode.rawCode, msgKeepAlive.dataLength, msgKeepAlive.msgBytes, null);
+//		ErrandBoy.println(msgKeepAlive02.toString());
+//		ErrandBoy.println(msgKeepAlive02.toStringOfBytes());
+//		ErrandBoy.println("-----------------------------------------------");
+		
+//		//test message: LIST_ROOMS
+//		WSMListRooms msgListRooms = new WSMListRooms();
+//		ErrandBoy.println(msgListRooms.toString());
+//		ErrandBoy.println(msgListRooms.toStringOfBytes());
+//		ErrandBoy.println("-----------------------------------------------");
+//		WSMListRooms msgListRooms02 = new WSMListRooms(msgListRooms.opcode.rawCode, msgListRooms.dataLength, msgListRooms.msgBytes, null);
+//		ErrandBoy.println(msgListRooms02.toString());
+//		ErrandBoy.println(msgListRooms02.toStringOfBytes());
+//		ErrandBoy.println("-----------------------------------------------");
+		
+//		//test message: ERROR
+//		WSMCode[] arrErrs = {WSMCode.ERR_ILLEGAL_OPCODE, WSMCode.ERR_KICKED_OUT, WSMCode.ERR_NAME_EXISTS, WSMCode.ERR_TOO_MANY_ROOMS, WSMCode.ERR_TOO_MANY_USERS, WSMCode.ERR_UNKNOWN};
+//		for (WSMCode errCode : arrErrs) {
+//			WSMError msgError = new WSMError(errCode);
+//			ErrandBoy.println(msgError.toString());
+//			ErrandBoy.println(msgError.toStringOfBytes());
+//			ErrandBoy.println("-----------------------------------------------");
+//			WSMError msgError02 = new WSMError(msgError.opcode.rawCode, msgError.dataLength, msgError.msgBytes, null);
+//			ErrandBoy.println(msgError02.toString());
+//			ErrandBoy.println(msgError02.toStringOfBytes());
+//			ErrandBoy.println("");
+//			ErrandBoy.println("");
+//		} 
+		
+		//test message: LIST_ROOMS_RESP
+		String[] arrRoomNames = {"PSU", "TheLongestRoomNameEverExistingInTheServerOfWatSup", "Hello Kitty", "An The Bad Girl", "Thong The Good Boy"};
+		WSMListRoomsResp msgListRoomsResp = new WSMListRoomsResp(arrRoomNames);
+		ErrandBoy.println(msgListRoomsResp.toString());
+		ErrandBoy.println(msgListRoomsResp.toStringOfBytes());
+		ErrandBoy.println("-----------------------------------------------");
+		WSMListRoomsResp msgListRoomsResp02 = new WSMListRoomsResp(msgListRoomsResp.opcode.rawCode, msgListRoomsResp.dataLength, msgListRoomsResp.msgBytes, null);
+		ErrandBoy.println(msgListRoomsResp02.toString());
+		ErrandBoy.println(msgListRoomsResp02.toStringOfBytes());
+		ErrandBoy.println("-----------------------------------------------");		
+
 	}
 }

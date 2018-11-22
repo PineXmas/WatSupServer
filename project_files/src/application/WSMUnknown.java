@@ -2,7 +2,7 @@ package application;
 
 import java.net.Socket;
 
-public class WSMDummy extends WSMessage {
+public class WSMUnknown extends WSMessage {
 	public String dataAsText;
 	
 	/**
@@ -12,13 +12,13 @@ public class WSMDummy extends WSMessage {
 	 * @param data remaining bytes of the message
 	 * @param sender the socket where the message is received (optional, could be NULL)
 	 */
-	public WSMDummy(int opcode, int dataLength, byte[] data, Socket sender) {
+	public WSMUnknown(int opcode, int dataLength, byte[] data, Socket sender) {
 		super(opcode, dataLength, data, sender);
 	}
 
 	@Override
 	public void parse2Attributes() {
-		dataAsText = new String(data, 8, dataLength);
+		dataAsText = new String(msgBytes, 8, dataLength);
 	}
 
 	@Override

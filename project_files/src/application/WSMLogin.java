@@ -1,30 +1,53 @@
 package application;
 
 import java.net.Socket;
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 public class WSMLogin extends WSMessage {
 
 	public String userName;
 	
-	public WSMLogin(int opcode, int dataLength, byte[] data, Socket sender) {
-		super(opcode, dataLength, data, sender);
+	public WSMLogin(int opcode, int dataLength, byte[] msgBytes, Socket sender) {
+		super(opcode, dataLength, msgBytes, sender);
 	}
 	
 	public WSMLogin(String userName) {
-		super(WSMCode.OPCODE_LOGIN.rawCode, userName.length(), null);
-		this.userName = userName;
+		
+		
+		//opcode
+		opcode = WSMCode.OPCODE_LOGIN;
+		
+		//data length
+		dataLength = WSSettings._LABEL_SIZE;
+		
+		//user name
+		int nameLength = Math.min(userName.length(), WSSettings._LABEL_SIZE);
+		this.userName = userName.substring(0, nameLength);
+		
+		//message-byte-array
+		msgBytes = ByteBuffer.allocate(8 + WSSettings._LABEL_SIZE)
+				.putInt(opcode.rawCode)
+				.putInt(dataLength)
+				.put(userName.getBytes(), 0, nameLength).array();
 	}
 
 	@Override
 	public void parse2Attributes() {
-		userName = parse2String(Arrays.copyOfRange(data, 8, data.length - 8));
+		userName = parse2String(msgBytes, 8, msgBytes.length);
 	}
 
 	@Override
 	public String toString() {
 		
 		return opcode + "|" +  dataLength + "|" + userName;
+	}
+
+	@Override
+	public String toStringOfBytes() {
+		return 	super.toStringOfBytes() + "|" +
+				displayBytes(msgBytes, 8, msgBytes.length-8)
+				;
 	}
 
 }

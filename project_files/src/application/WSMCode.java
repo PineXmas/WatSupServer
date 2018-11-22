@@ -4,7 +4,6 @@ public enum WSMCode {
 	
 	//opcodes
 	OPCODE_UNKNOWN (-1),
-	OPCODE_DUMMY (0),
 	OPCODE_ERROR (1001),
 	OPCODE_KEEPALIVE (1002),
 	OPCODE_LOGIN (1003),
