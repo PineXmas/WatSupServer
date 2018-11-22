@@ -38,7 +38,7 @@ public class Controller {
 	 */
 	void init() {		
 		//get port number
-		int portNumber = WSServer._DEFAULT_PORT;
+		int portNumber = WSSettings._DEFAULT_PORT;
 		try {
 			portNumber = Integer.valueOf(txtPortNumber.getText());
 		} catch (NumberFormatException e) {
@@ -46,7 +46,7 @@ public class Controller {
 		}
 		
 		//create server object
-		server = new WSServer(portNumber, WSServer._MAX_ROOMS, WSServer._MAX_USERS);
+		server = new WSServer(portNumber, WSSettings._MAX_ROOMS, WSSettings._MAX_USERS);
 	}
 	
 	/***********************************************

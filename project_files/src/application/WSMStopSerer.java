@@ -12,7 +12,7 @@ public class WSMStopSerer extends WSMessage {
 	}
 
 	@Override
-	public void parseToAttributes() {
+	public void parse2Attributes() {
 	}
 
 	@Override

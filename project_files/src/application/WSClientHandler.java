@@ -54,9 +54,6 @@ public class WSClientHandler {
 							receivingMsgQueue.put(msg);
 						}
 						
-						// TODO (debug)
-//						String content = new String(buff, 0, readBytes);
-//						ErrandBoy.println("Client " + getName() + " sent (" + readBytes + "): " + content);
 					}
 					
 					//reach here means the input stream has reach eof
