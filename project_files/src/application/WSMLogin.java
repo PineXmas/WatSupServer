@@ -14,7 +14,6 @@ public class WSMLogin extends WSMessage {
 	public WSMLogin(String userName) {
 		super(WSMCode.OPCODE_LOGIN.rawCode, userName.length(), null);
 		this.userName = userName;
-		
 	}
 
 	@Override
