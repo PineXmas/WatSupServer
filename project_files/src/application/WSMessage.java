@@ -6,34 +6,22 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
 public abstract class WSMessage {
-	//PREDEFINED OPCODES
-	static final int OPCODE_UNKNOWN = -1;
-	static final int OPCODE_DUMMY = 0;
-	static final int OPCODE_ERROR = 1001;
-	static final int OPCODE_KEEPALIVE = 1002;
-	static final int OPCODE_LOGIN = 1003;
-	static final int OPCODE_LOGOUT = 1004;
-	static final int OPCODE_LOGIN_SUCCESS = 1005;
-	static final int OPCODE_LIST_ROOMS = 1006;
-	static final int OPCODE_LIST_ROOMS_RESP = 1007;
-	static final int OPCODE_LIST_USERS_RESP = 1008;
-	static final int OPCODE_JOIN_ROOM = 1009;
-	static final int OPCODE_LEAVE_ROOM = 1010;
-	static final int OPCODE_SEND_ROOM_MSG = 1011;
-	static final int OPCODE_TELL_ROOM_MSG = 1012;
 	
-	//PREDEFINED ERROR CODES
+	/***********************************************
+	 * [MEMBERS]
+	 ***********************************************/
 	
-	//MEMBERS
-	int opcode;
+	WSMCode opcode;
 	int dataLength;
 	byte[] data;
 	Socket sender;
 	
-	//STATIC METHODS
+	/***********************************************
+	 * [STATIC METHODS]
+	 ***********************************************/
 	
-	/** Determine opcode from the given byte-array
-	 * 
+	/** 
+	 * Determine opcode from the given byte-array
 	 * @param arrBytes the bytes read so far from the input stream, could be empty
 	 * @return the opcode or -1 if not enough byte to determine
 	 */
@@ -45,8 +33,8 @@ public abstract class WSMessage {
 		return ByteBuffer.allocate(4).put(arrBytes, 0, 4).getInt(0);
 	}
 	
-	/** Determine data-length from the given byte-array
-	 * 
+	/** 
+	 * Determine data-length from the given byte-array
 	 * @param arrBytes the bytes read so far from the input stream, could be empty
 	 * @return the data-length or -1 if not enough byte to determine
 	 */
@@ -58,8 +46,8 @@ public abstract class WSMessage {
 		return ByteBuffer.allocate(4).put(arrBytes, 4, 4).getInt(0);
 	}
 	
-	/** Determine remaining-byes-to-read from the given byte-array, return -1 if not enough byte to determine
-	 * 
+	/** 
+	 * Determine remaining-byes-to-read from the given byte-array, return -1 if not enough byte to determine
 	 * @param arrBytes the bytes read so far from the input stream, could be empty
 	 * @return the remaining-byes-to-read or -1 if not enough byte to determine
 	 */
@@ -82,6 +70,18 @@ public abstract class WSMessage {
 	 * @return list of 0 or more complete messages
 	 */
 	static public ArrayList<WSMessage> parse2Msgs(byte[] arrReadBytes, byte[] arrIncompleteMsg, ArrayList<Byte> listNewIncompleteMsg){
+		return parse2Msgs(arrReadBytes, arrIncompleteMsg, listNewIncompleteMsg, null);
+	}
+	
+	/**
+	 * Parse the given byte-array into messages (and return leftover bytes if available)
+	 * @param arrReadBytes array of bytes read from the input stream
+	 * @param arrIncompleteMsg array of bytes from an incomplete message
+	 * @param listNewIncompleteMsg list of bytes left after this operation (an incomplete message)
+	 * @param sender the socket where the message is received (optional, could be NULL)
+	 * @return list of 0 or more complete messages
+	 */
+	static public ArrayList<WSMessage> parse2Msgs(byte[] arrReadBytes, byte[] arrIncompleteMsg, ArrayList<Byte> listNewIncompleteMsg, Socket sender){
 		ArrayList<WSMessage> listComplete = new ArrayList<>();
 		int currPos = 0;
 		int currOpcode = -1;
@@ -148,7 +148,7 @@ public abstract class WSMessage {
 			/*
 			 * the function will look like this: create-specific-message(opcode, data-length, data)
 			 */
-			WSMDummy msgDummy = new WSMDummy(currOpcode, currDataLength, ErrandBoy.convertList2Array(listNewIncompleteMsg), null);
+			WSMDummy msgDummy = new WSMDummy(currOpcode, currDataLength, ErrandBoy.convertList2Array(listNewIncompleteMsg), sender);
 			listComplete.add(msgDummy);
 			listNewIncompleteMsg.clear();
 		}
@@ -156,26 +156,52 @@ public abstract class WSMessage {
 		return listComplete;
 	}
 	
-	//METHODS
+	/**
+	 * Parse the given bytes into a label, which could be used for user name or room name
+	 * @param arrBytes the bytes containing the label 
+	 * @return
+	 */
+	static public String parse2String(byte[] arrBytes) {
+		int length = -1;
+		for (int i = 0; i < arrBytes.length; i++) {
+			if (arrBytes[i] == 0) {
+				length = i;
+				break;
+			}
+		}
+		
+		if (length == -1) {
+			return new String(arrBytes);
+		}
+		
+		return new String(arrBytes, 0, length);
+	}
+	
+	/***********************************************
+	 * [METHODS]
+	 ***********************************************/
+	
+	public WSMessage() {
+	}
 	
 	public WSMessage(int opcode, int dataLength, byte[] data) {
 		this(opcode, dataLength, data, null);
 	}
 	
 	/**
-	 * Constructor
-	 * @param opcode
-	 * @param dataLength
-	 * @param data
-	 * @param sender the socket sending this message
+	 * This constructor mostly is used in case the message is received from a socket-input-stream
+	 * @param opcode first 4 byte of the message
+	 * @param dataLength next 4 byte of the message
+	 * @param data remaining bytes of the message
+	 * @param sender the socket where the message is received (optional, could be NULL)
 	 */
 	public WSMessage(int opcode, int dataLength, byte[] data, Socket sender) {
-		this.opcode = opcode;
+		this.opcode = WSMCode.GetCode(opcode);
 		this.dataLength = dataLength;
 		this.data = data;
 		this.sender = sender;
 		
-		parseToAttributes();
+		parse2Attributes();
 	}
 	
 	/**
@@ -187,7 +213,7 @@ public abstract class WSMessage {
 		
 		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 		try {
-			outputStream.write(ByteBuffer.allocate(4).putInt(opcode).array());
+			outputStream.write(ByteBuffer.allocate(4).putInt(opcode.rawCode).array());
 			outputStream.write(ByteBuffer.allocate(4).putInt(dataLength).array());
 			outputStream.write(data);
 			return outputStream.toByteArray();
@@ -200,7 +226,7 @@ public abstract class WSMessage {
 	/**
 	 * Parse the data-bytes into different attributes, depending on particular message types.
 	 */
-	public abstract void parseToAttributes(); 
+	public abstract void parse2Attributes(); 
 	
 	/**
 	 * Present the message in human-readable text
@@ -209,8 +235,6 @@ public abstract class WSMessage {
 	
 	// DEBUG: test functions in this WSMessage class
 	public static void main() {
-		ArrayList<Byte> listEmpty = new ArrayList<>();
-		byte[] arrEmpty = ErrandBoy.convertList2Array(listEmpty);
-		System.out.println(arrEmpty.length);
+		
 	}
 }
