@@ -6,6 +6,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 
+/**
+ * Used as a base class for all of our message types. This class also provide many utility functions useful for message processing.
+ * @author pinex
+ *
+ */
 public abstract class WSMessage {
 	
 	/***********************************************
@@ -302,7 +307,7 @@ public abstract class WSMessage {
 //		ErrandBoy.println(msgLogin02.toString());
 //		ErrandBoy.println(msgLogin02.toStringOfBytes());
 //		ErrandBoy.println("-----------------------------------------------");
-		
+//		
 //		//test message: LOGOUT
 //		WSMLogout msgLogout = new WSMLogout();
 //		ErrandBoy.println(msgLogout.toString());
@@ -312,7 +317,7 @@ public abstract class WSMessage {
 //		ErrandBoy.println(msgLogout02.toString());
 //		ErrandBoy.println(msgLogout02.toStringOfBytes());
 //		ErrandBoy.println("-----------------------------------------------");
-		
+//		
 //		//test message: LOGIN_SUCCESS
 //		WSMLoginSuccess msgLoginSuccess = new WSMLoginSuccess();
 //		ErrandBoy.println(msgLoginSuccess.toString());
@@ -322,7 +327,7 @@ public abstract class WSMessage {
 //		ErrandBoy.println(msgLoginSuccess02.toString());
 //		ErrandBoy.println(msgLoginSuccess02.toStringOfBytes());
 //		ErrandBoy.println("-----------------------------------------------");
-		
+//		
 //		//test message: KEEPALIVE
 //		WSMKeepAlive msgKeepAlive = new WSMKeepAlive();
 //		ErrandBoy.println(msgKeepAlive.toString());
@@ -332,7 +337,7 @@ public abstract class WSMessage {
 //		ErrandBoy.println(msgKeepAlive02.toString());
 //		ErrandBoy.println(msgKeepAlive02.toStringOfBytes());
 //		ErrandBoy.println("-----------------------------------------------");
-		
+//		
 //		//test message: LIST_ROOMS
 //		WSMListRooms msgListRooms = new WSMListRooms();
 //		ErrandBoy.println(msgListRooms.toString());
@@ -342,7 +347,7 @@ public abstract class WSMessage {
 //		ErrandBoy.println(msgListRooms02.toString());
 //		ErrandBoy.println(msgListRooms02.toStringOfBytes());
 //		ErrandBoy.println("-----------------------------------------------");
-		
+//		
 //		//test message: ERROR
 //		WSMCode[] arrErrs = {WSMCode.ERR_ILLEGAL_OPCODE, WSMCode.ERR_KICKED_OUT, WSMCode.ERR_NAME_EXISTS, WSMCode.ERR_TOO_MANY_ROOMS, WSMCode.ERR_TOO_MANY_USERS, WSMCode.ERR_UNKNOWN};
 //		for (WSMCode errCode : arrErrs) {
@@ -356,17 +361,47 @@ public abstract class WSMessage {
 //			ErrandBoy.println("");
 //			ErrandBoy.println("");
 //		} 
-		
-		//test message: LIST_ROOMS_RESP
-		String[] arrRoomNames = {"PSU", "TheLongestRoomNameEverExistingInTheServerOfWatSup", "Hello Kitty", "An The Bad Girl", "Thong The Good Boy"};
-		WSMListRoomsResp msgListRoomsResp = new WSMListRoomsResp(arrRoomNames);
-		ErrandBoy.println(msgListRoomsResp.toString());
-		ErrandBoy.println(msgListRoomsResp.toStringOfBytes());
+//		
+//		//test message: LIST_ROOMS_RESP
+//		String[] arrRoomNames = {"PSU", "TheLongestRoomNameEverExistingInTheServerOfWatSup", "Hello Kitty", "An The Bad Girl", "Thong The Good Boy"};
+//		WSMListRoomsResp msgListRoomsResp = new WSMListRoomsResp(arrRoomNames);
+//		ErrandBoy.println(msgListRoomsResp.toString());
+//		ErrandBoy.println(msgListRoomsResp.toStringOfBytes());
+//		ErrandBoy.println("-----------------------------------------------");
+//		WSMListRoomsResp msgListRoomsResp02 = new WSMListRoomsResp(msgListRoomsResp.opcode.rawCode, msgListRoomsResp.dataLength, msgListRoomsResp.msgBytes, null);
+//		ErrandBoy.println(msgListRoomsResp02.toString());
+//		ErrandBoy.println(msgListRoomsResp02.toStringOfBytes());
+//		ErrandBoy.println("-----------------------------------------------");		
+//
+//		//test message: LIST_USERS_RESP
+//		String[] arrUserNames = {"thong", "an", "dai", "thao"};
+//		WSMListUsersResp msgListUsersResp = new WSMListUsersResp("PSU", arrUserNames);
+//		ErrandBoy.println(msgListUsersResp.toString());
+//		ErrandBoy.println(msgListUsersResp.toStringOfBytes());
+//		ErrandBoy.println("-----------------------------------------------");
+//		WSMListUsersResp msgListUsersResp02 = new WSMListUsersResp(msgListUsersResp.opcode.rawCode, msgListUsersResp.dataLength, msgListUsersResp.msgBytes, null);
+//		ErrandBoy.println(msgListUsersResp02.toString());
+//		ErrandBoy.println(msgListUsersResp02.toStringOfBytes());
+//		ErrandBoy.println("-----------------------------------------------");
+//
+//		//test message: JOIN ROOM
+//		WSMJoinRoom msgJoinRoom = new WSMJoinRoom("PSU");
+//		ErrandBoy.println(msgJoinRoom.toString());
+//		ErrandBoy.println(msgJoinRoom.toStringOfBytes());
+//		ErrandBoy.println("-----------------------------------------------");
+//		WSMJoinRoom msgJoinRoom02 = new WSMJoinRoom(msgJoinRoom.opcode.rawCode, msgJoinRoom.dataLength, msgJoinRoom.msgBytes, null);
+//		ErrandBoy.println(msgJoinRoom02.toString());
+//		ErrandBoy.println(msgJoinRoom02.toStringOfBytes());
+//		ErrandBoy.println("-----------------------------------------------");
+//
+		//test message: LEAVE ROOM
+		WSMLeaveRoom msgLeaveRoom = new WSMLeaveRoom("PSU PhD degree");
+		ErrandBoy.println(msgLeaveRoom.toString());
+		ErrandBoy.println(msgLeaveRoom.toStringOfBytes());
 		ErrandBoy.println("-----------------------------------------------");
-		WSMListRoomsResp msgListRoomsResp02 = new WSMListRoomsResp(msgListRoomsResp.opcode.rawCode, msgListRoomsResp.dataLength, msgListRoomsResp.msgBytes, null);
-		ErrandBoy.println(msgListRoomsResp02.toString());
-		ErrandBoy.println(msgListRoomsResp02.toStringOfBytes());
-		ErrandBoy.println("-----------------------------------------------");		
-
+		WSMLeaveRoom msgLeaveRoom02 = new WSMLeaveRoom(msgLeaveRoom.opcode.rawCode, msgLeaveRoom.dataLength, msgLeaveRoom.msgBytes, null);
+		ErrandBoy.println(msgLeaveRoom02.toString());
+		ErrandBoy.println(msgLeaveRoom02.toStringOfBytes());
+		ErrandBoy.println("-----------------------------------------------");
 	}
 }
