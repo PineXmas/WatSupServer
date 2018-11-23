@@ -28,7 +28,7 @@ public class WSMListRoomsResp extends WSMessage {
 			String name = verifyLabelLength(arrRoomNames[i]);
 			this.arrRoomNames[i] = name;
 			
-			//prepare name buffer
+			// prepare name buffer
 			ByteBuffer nameBuff = ByteBuffer.allocate(WSSettings._LABEL_SIZE);
 			nameBuff.put(name.getBytes());
 			
