@@ -2,7 +2,6 @@ package application;
 
 import java.net.Socket;
 import java.nio.ByteBuffer;
-import java.util.Arrays;
 
 public class WSMLogin extends WSMessage {
 

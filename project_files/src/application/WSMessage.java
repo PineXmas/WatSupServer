@@ -3,8 +3,6 @@ package application;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 
 /**
  * Used as a base class for all of our message types. This class also provide many utility functions useful for message processing.
@@ -394,14 +392,44 @@ public abstract class WSMessage {
 //		ErrandBoy.println(msgJoinRoom02.toStringOfBytes());
 //		ErrandBoy.println("-----------------------------------------------");
 //
-		//test message: LEAVE ROOM
-		WSMLeaveRoom msgLeaveRoom = new WSMLeaveRoom("PSU PhD degree");
-		ErrandBoy.println(msgLeaveRoom.toString());
-		ErrandBoy.println(msgLeaveRoom.toStringOfBytes());
-		ErrandBoy.println("-----------------------------------------------");
-		WSMLeaveRoom msgLeaveRoom02 = new WSMLeaveRoom(msgLeaveRoom.opcode.rawCode, msgLeaveRoom.dataLength, msgLeaveRoom.msgBytes, null);
-		ErrandBoy.println(msgLeaveRoom02.toString());
-		ErrandBoy.println(msgLeaveRoom02.toStringOfBytes());
-		ErrandBoy.println("-----------------------------------------------");
+//		//test message: LEAVE ROOM
+//		WSMLeaveRoom msgLeaveRoom = new WSMLeaveRoom("PSU PhD degree");
+//		ErrandBoy.println(msgLeaveRoom.toString());
+//		ErrandBoy.println(msgLeaveRoom.toStringOfBytes());
+//		ErrandBoy.println("-----------------------------------------------");
+//		WSMLeaveRoom msgLeaveRoom02 = new WSMLeaveRoom(msgLeaveRoom.opcode.rawCode, msgLeaveRoom.dataLength, msgLeaveRoom.msgBytes, null);
+//		ErrandBoy.println(msgLeaveRoom02.toString());
+//		ErrandBoy.println(msgLeaveRoom02.toStringOfBytes());
+//		ErrandBoy.println("-----------------------------------------------");
+//
+//		//test message: SEND ROOM MSG
+//		WSMSendRoomMsg msgSendRoomMsg = new WSMSendRoomMsg("thong", "there's always a reason to meet someone in our life");
+//		ErrandBoy.println(msgSendRoomMsg.toString());
+//		ErrandBoy.println(msgSendRoomMsg.toStringOfBytes());
+//		ErrandBoy.println("-----------------------------------------------");
+//		WSMSendRoomMsg msgSendRoomMsg02 = new WSMSendRoomMsg(msgSendRoomMsg.opcode.rawCode, msgSendRoomMsg.dataLength, msgSendRoomMsg.msgBytes, null);
+//		ErrandBoy.println(msgSendRoomMsg02.toString());
+//		ErrandBoy.println(msgSendRoomMsg02.toStringOfBytes());
+//		ErrandBoy.println("-----------------------------------------------");
+//
+//		//test message: SEND PRIVATE MSG
+//		WSMSendPrivateMsg msgSendPrivateMsg = new WSMSendPrivateMsg("my partner", "you are the best thing ever happened to my life");
+//		ErrandBoy.println(msgSendPrivateMsg.toString());
+//		ErrandBoy.println(msgSendPrivateMsg.toStringOfBytes());
+//		ErrandBoy.println("-----------------------------------------------");
+//		WSMSendPrivateMsg msgSendPrivateMsg02 = new WSMSendPrivateMsg(msgSendPrivateMsg.opcode.rawCode, msgSendPrivateMsg.dataLength, msgSendPrivateMsg.msgBytes, null);
+//		ErrandBoy.println(msgSendPrivateMsg02.toString());
+//		ErrandBoy.println(msgSendPrivateMsg02.toStringOfBytes());
+//		ErrandBoy.println("-----------------------------------------------");
+//
+//		//test message: TELL PRIVATE MSG
+//		WSMTellPrivateMsg msgTellPrivateMsg = new WSMTellPrivateMsg("thong", "is this trial-and-error period a requirement for meeting you, babe?");
+//		ErrandBoy.println(msgTellPrivateMsg.toString());
+//		ErrandBoy.println(msgTellPrivateMsg.toStringOfBytes());
+//		ErrandBoy.println("-----------------------------------------------");
+//		WSMTellPrivateMsg msgTellPrivateMsg02 = new WSMTellPrivateMsg(msgTellPrivateMsg.opcode.rawCode, msgTellPrivateMsg.dataLength, msgTellPrivateMsg.msgBytes, null);
+//		ErrandBoy.println(msgTellPrivateMsg02.toString());
+//		ErrandBoy.println(msgTellPrivateMsg02.toStringOfBytes());
+//		ErrandBoy.println("-----------------------------------------------");		
 	}
 }

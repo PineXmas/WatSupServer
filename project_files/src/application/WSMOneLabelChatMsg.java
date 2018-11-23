@@ -2,55 +2,61 @@ package application;
 
 import java.net.Socket;
 import java.nio.ByteBuffer;
-import java.util.Arrays;
 
 /**
  * Used as base class for 3 messages: SEND_PRIVATE_MSG, TELL_PRIVATE_MSG & SEND_ROOM_MSG, since they all require only 1 label for sender/receiver's name
  * @author pinex
  *
  */
-public class WSMOneLabelChatMsg extends WSMessage {
+public abstract class WSMOneLabelChatMsg extends WSMessage {
 
-	public String roomName;
+	public String name;
+	public String chatContent;
 	
 	public WSMOneLabelChatMsg(int opcode, int dataLength, byte[] msgBytes, Socket sender) {
 		super(opcode, dataLength, msgBytes, sender);
 	}
 	
-	public WSMOneLabelChatMsg(String roomName) {
+	public WSMOneLabelChatMsg(WSMCode opcode, String name, String chatContent) {
 		
 		//opcode
-		opcode = WSMCode.OPCODE_JOIN_ROOM;
+		this.opcode = opcode;
 		
 		//data length
-		dataLength = WSSettings._LABEL_SIZE;
+		dataLength = WSSettings._LABEL_SIZE + chatContent.length();
 		
-		//user name
-		int nameLength = Math.min(roomName.length(), WSSettings._LABEL_SIZE);
-		this.roomName = roomName.substring(0, nameLength);
+		//attributes
+		int nameLength = Math.min(name.length(), WSSettings._LABEL_SIZE);
+		this.name = name.substring(0, nameLength);
+		this.chatContent = chatContent;
 		
 		//message-byte-array
-		msgBytes = ByteBuffer.allocate(8 + WSSettings._LABEL_SIZE)
-				.putInt(opcode.rawCode)
+		msgBytes = ByteBuffer.allocate(8 + dataLength)
+				.putInt(this.opcode.rawCode)
 				.putInt(dataLength)
-				.put(roomName.getBytes(), 0, nameLength).array();
+				.put(ByteBuffer.allocate(WSSettings._LABEL_SIZE).put (name.getBytes(), 0, nameLength).array())
+				.put(chatContent.getBytes())
+				.array()
+				;
 	}
 
 	@Override
 	public void parse2Attributes() {
-		roomName = parse2String(msgBytes, 8, msgBytes.length);
+		name = parse2String(msgBytes, 8, WSSettings._LABEL_SIZE);
+		chatContent = parse2String(msgBytes, 8 + WSSettings._LABEL_SIZE, dataLength - WSSettings._LABEL_SIZE);
 	}
 
 	@Override
 	public String toString() {
 		
-		return opcode + "|" +  dataLength + "|" + roomName;
+		return opcode + "|" +  dataLength + "|(name)" + name + "|(chat)" + chatContent;
 	}
 
 	@Override
 	public String toStringOfBytes() {
 		return 	super.toStringOfBytes() + "|" +
-				displayBytes(msgBytes, 8, msgBytes.length-8)
+				displayBytes(msgBytes, 8, WSSettings._LABEL_SIZE) + "|" +
+				displayBytes(msgBytes, 8 + WSSettings._LABEL_SIZE, dataLength - WSSettings._LABEL_SIZE)
 				;
 	}
 

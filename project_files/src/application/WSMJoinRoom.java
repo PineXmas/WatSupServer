@@ -2,7 +2,6 @@ package application;
 
 import java.net.Socket;
 import java.nio.ByteBuffer;
-import java.util.Arrays;
 
 /**
  * Used to <strong>JOIN</strong> an existing room or <strong>CREATE</strong> a new room if not exist.
