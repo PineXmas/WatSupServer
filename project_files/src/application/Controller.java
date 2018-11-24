@@ -1,6 +1,7 @@
 package application;
 
 import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
@@ -25,13 +26,14 @@ public class Controller {
 	 ***********************************************/
 	
 	WSServer server;
-	
-	// TODO used isInit to make sure the init function is called once. Improve this later
-	boolean isInit = false;
 
 	/***********************************************
 	 * FUNCTIONS
 	 ***********************************************/
+	
+	@FXML
+    protected void initialize() {
+    }
 	
 	/**
 	 * Initialize environment for WatSup server

@@ -4,6 +4,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
 
+import javafx.scene.control.TextArea;
+
 /**
  * This class provide utilities for WatSup system. Use this to:
  * + quickly test functions
@@ -18,6 +20,9 @@ public abstract class ErrandBoy {
 	
 	static boolean isPrintStackTrace = false;
 	
+	public static TextArea txtOutput1 = null;
+	static Object lockTxtOutput1 = new Object();
+	
 	public static void Test() {
 		System.out.println("hello");
 	}
@@ -27,6 +32,15 @@ public abstract class ErrandBoy {
 	 * @param msg message to print
 	 */
 	synchronized public static void print(String msg) {
+//		synchronized (lockTxtOutput) {
+//			if (txtOutput != null) {
+//				txtOutput.appendText(msg);
+//			} else {
+//				System.out.print(msg);
+//			}
+//		}
+		
+		//run as normal
 		System.out.print(msg);
 	}
 	
@@ -35,7 +49,7 @@ public abstract class ErrandBoy {
 	 * @param msg message to print
 	 */
 	synchronized public static void println(String msg) {
-		System.out.println(msg);
+		print(msg + "\n");
 	}
 	
 	/**
@@ -44,17 +58,17 @@ public abstract class ErrandBoy {
 	 * @param errHeadline the headline
 	 */
 	synchronized public static void printlnError(Exception e, String errHeadline) {
-		System.out.print(errHeadline);
+		print(errHeadline);
 		
 		//get error stack trace into string & print to console
 		if (isPrintStackTrace) {
 			ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
 			PrintStream printStream = new PrintStream(byteStream);
 			e.printStackTrace(printStream);
-			System.out.println();
-			System.out.println(byteStream.toString());
+			println("");
+			println(byteStream.toString());
 		} else {
-			System.out.println(" (" + e.toString() + ")");
+			println(" (" + e.toString() + ")");
 		}
 	}
 	
