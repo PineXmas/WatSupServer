@@ -50,7 +50,7 @@ public class WSClientHandler {
 						
 						//enqueue messages
 						for (WSMessage msg : listMsgs) {
-							msg.sender = clientSocket;
+							msg.clientHandler = clientSocket;
 							receivingMsgQueue.put(msg);
 						}
 						

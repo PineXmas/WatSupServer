@@ -12,8 +12,9 @@ public class WSServer {
 	 ***********************************************/
 	
 	//chat data
-	Object listRooms;
-	Object listUsers;
+	ArrayList<ChatRoom> listRooms = new ArrayList<>();
+	ArrayList<ChatClient> listUsers = new ArrayList<>();
+	ArrayList<WSClientHandler> listClientSockets = new ArrayList<>();
 	int portNumber;
 	int maxRooms;
 	int maxUsers;
@@ -26,8 +27,6 @@ public class WSServer {
 	Thread msgReceiver;
 	Thread connectionListener;
 	
-	//client sockets
-	ArrayList<WSClientHandler> listClientSockets = new ArrayList<>();
 	
 	/***********************************************
 	 * CONSTRUCTORS
@@ -118,7 +117,13 @@ public class WSServer {
 					WSMessage msg;
 					while ( !((msg = receivingMsgQueue.take()) instanceof WSMStopSerer)) {
 						//TODO process messages here. Print to console for now
-						ErrandBoy.println("Client " + WSClientHandler.getClientName(msg.sender) + " sent: " + msg.toString());
+						ErrandBoy.println("Client " + WSClientHandler.getClientName(msg.clientHandler) + " sent: " + msg.toString());
+					
+						switch (msg.opcode) {
+						case OPCODE_LOGIN:
+							
+							break;
+						}
 					}
 					
 					ErrandBoy.println("Receiver-thread has stopped");

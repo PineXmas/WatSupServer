@@ -18,7 +18,7 @@ public abstract class WSMessage {
 	WSMCode opcode = WSMCode.OPCODE_UNKNOWN;
 	int dataLength = 0;
 	byte[] msgBytes = {};
-	Socket sender;
+	Socket clientHandler;
 	
 	/***********************************************
 	 * [STATIC METHODS]
@@ -213,7 +213,7 @@ public abstract class WSMessage {
 	}
 	
     /**
-     * Generate the an array of 8 bytes storing opcode & data-length (0) only. Useful for message without additional data.
+     * Generate an array of 8 bytes storing opcode & data-length (0) only. Useful for message without additional data.
      * @param opcode
      * @param dataLength
      * @return
@@ -257,7 +257,7 @@ public abstract class WSMessage {
 		this.opcode = WSMCode.GetCode(opcode);
 		this.dataLength = dataLength;
 		this.msgBytes = msgBytes;
-		this.sender = sender;
+		this.clientHandler = sender;
 		
 		parse2Attributes();
 	}
