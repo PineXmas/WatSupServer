@@ -7,14 +7,15 @@ package application;
  */
 public class ChatMessage {
 	public String content;
-	public ChatClient sender;
+	public WSClientHandler sender;
 	
-	public ChatMessage(String content, ChatClient sender) {
+	public ChatMessage(String content, WSClientHandler sender) {
 		this.content = content;
 		this.sender = sender;
 	}
 	
 	public String toString() {
-		return sender.userName + " ::: " + content;
+		//return sender.userName + " ::: " + content;
+		return null;
 	}
 }

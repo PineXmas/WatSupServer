@@ -13,7 +13,6 @@ public class WSServer {
 	
 	//chat data
 	ArrayList<ChatRoom> listRooms = new ArrayList<>();
-	ArrayList<ChatClient> listUsers = new ArrayList<>();
 	ArrayList<WSClientHandler> listClientSockets = new ArrayList<>();
 	int portNumber;
 	int maxRooms;
@@ -117,7 +116,7 @@ public class WSServer {
 					WSMessage msg;
 					while ( !((msg = receivingMsgQueue.take()) instanceof WSMStopSerer)) {
 						//TODO process messages here. Print to console for now
-						ErrandBoy.println("Client " + WSClientHandler.getClientName(msg.clientHandler) + " sent: " + msg.toString());
+						ErrandBoy.println("Client " + WSClientHandler.getClientName(msg.clientHandler.clientSocket) + " sent: " + msg.toString());
 					
 						switch (msg.opcode) {
 						case OPCODE_LOGIN:

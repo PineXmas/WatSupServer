@@ -3,7 +3,7 @@ package application;
 import java.net.Socket;
 
 public class WSMSendPrivateMsg extends WSMOneLabelChatMsg {
-	public WSMSendPrivateMsg(int opcode, int dataLength, byte[] msgBytes, Socket sender) {
+	public WSMSendPrivateMsg(int opcode, int dataLength, byte[] msgBytes, WSClientHandler sender) {
 		super(opcode, dataLength, msgBytes, sender);
 	}
 	

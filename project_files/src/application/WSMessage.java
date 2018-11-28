@@ -18,7 +18,7 @@ public abstract class WSMessage {
 	WSMCode opcode = WSMCode.OPCODE_UNKNOWN;
 	int dataLength = 0;
 	byte[] msgBytes = {};
-	Socket clientHandler;
+	WSClientHandler clientHandler;
 	
 	/***********************************************
 	 * [STATIC METHODS]
@@ -165,12 +165,9 @@ public abstract class WSMessage {
 		
 		//try to finalize the incomplete message before exit
 		if (currOpcode != -1 && currDataLength != -1 && remainingBytes == 0) {
-			//TODO create specific message based on its opcode here. Return dummy message for now
-			/*
-			 * the function will look like this: create-specific-message(opcode, data-length, data)
-			 */
-			WSMUnknown msgDummy = new WSMUnknown(currOpcode, currDataLength, ErrandBoy.convertList2Array(listNewIncompleteMsg), sender);
-			listComplete.add(msgDummy);
+			
+			WSMessage msg = createSpecificMsg(currOpcode, currDataLength, ErrandBoy.convertList2Array(listNewIncompleteMsg));
+			listComplete.add(msg);
 			listNewIncompleteMsg.clear();
 		}
 		
@@ -253,7 +250,7 @@ public abstract class WSMessage {
 	 * @param msgBytes remaining bytes of the message
 	 * @param sender the socket where the message is received (optional, could be NULL)
 	 */
-	public WSMessage(int opcode, int dataLength, byte[] msgBytes, Socket sender) {
+	public WSMessage(int opcode, int dataLength, byte[] msgBytes, WSClientHandler sender) {
 		this.opcode = WSMCode.GetCode(opcode);
 		this.dataLength = dataLength;
 		this.msgBytes = msgBytes;

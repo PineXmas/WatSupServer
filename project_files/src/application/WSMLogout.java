@@ -4,7 +4,7 @@ import java.net.Socket;
 
 public class WSMLogout extends WSMNoData {
 
-	public WSMLogout(int opcode, int dataLength, byte[] data, Socket sender) {
+	public WSMLogout(int opcode, int dataLength, byte[] data, WSClientHandler sender) {
 		super(opcode, dataLength, data, sender);
 	}
 	

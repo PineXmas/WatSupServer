@@ -8,7 +8,7 @@ public class WSMListUsersResp extends WSMessage {
 	public String roomName;
 	public String[] arrUserNames;
 	
-	public WSMListUsersResp(int opcode, int dataLength, byte[] msgBytes, Socket sender) {
+	public WSMListUsersResp(int opcode, int dataLength, byte[] msgBytes, WSClientHandler sender) {
 		super(opcode, dataLength, msgBytes, sender);
 	}
 	

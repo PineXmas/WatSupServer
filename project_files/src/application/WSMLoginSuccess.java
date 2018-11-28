@@ -4,7 +4,7 @@ import java.net.Socket;
 
 public class WSMLoginSuccess extends WSMNoData {
 
-	public WSMLoginSuccess(int opcode, int dataLength, byte[] data, Socket sender) {
+	public WSMLoginSuccess(int opcode, int dataLength, byte[] data, WSClientHandler sender) {
 		super(opcode, dataLength, data, sender);
 	}
 	

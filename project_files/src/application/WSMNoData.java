@@ -9,7 +9,7 @@ import java.net.Socket;
  */
 public abstract class WSMNoData extends WSMessage {
 
-	public WSMNoData(int opcode, int dataLength, byte[] data, Socket sender) {
+	public WSMNoData(int opcode, int dataLength, byte[] data, WSClientHandler sender) {
 		super(opcode, dataLength, data, sender);
 	}
 	

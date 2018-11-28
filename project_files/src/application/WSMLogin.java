@@ -7,7 +7,7 @@ public class WSMLogin extends WSMessage {
 
 	public String userName;
 	
-	public WSMLogin(int opcode, int dataLength, byte[] msgBytes, Socket sender) {
+	public WSMLogin(int opcode, int dataLength, byte[] msgBytes, WSClientHandler sender) {
 		super(opcode, dataLength, msgBytes, sender);
 	}
 	

@@ -14,6 +14,7 @@ public class WSClientHandler {
 	public WSClientHandler(Socket clientSocket, BlockingQueue<WSMessage> receivingMsgQueue) {
 		this.clientSocket = clientSocket;
 		this.receivingMsgQueue = receivingMsgQueue;
+		WSClientHandler myself = this;
 		
 		//set up listener thread
 		listener = new Thread(new Runnable() {
@@ -50,7 +51,7 @@ public class WSClientHandler {
 						
 						//enqueue messages
 						for (WSMessage msg : listMsgs) {
-							msg.clientHandler = clientSocket;
+							msg.clientHandler = myself;
 							receivingMsgQueue.put(msg);
 						}
 						

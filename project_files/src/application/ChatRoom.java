@@ -11,7 +11,7 @@ import java.util.ArrayList;
  *
  */
 public class ChatRoom {
-	public ArrayList<ChatClient> listUsers = new ArrayList<>();
+	public ArrayList<WSClientHandler> listUsers = new ArrayList<>();
 	public ArrayList<ChatMessage> listMsgs = new ArrayList<>();
 	public String roomName;
 	
@@ -19,7 +19,7 @@ public class ChatRoom {
 		this.roomName = roomName;
 	}
 	
-	public void addUser(ChatClient newUser) {
+	public void addUser(WSClientHandler newUser) {
 		listUsers.add(newUser);
 	}
 	
@@ -32,12 +32,14 @@ public class ChatRoom {
 	 * @return
 	 */
 	public WSMListUsersResp genListUsersMsg() {
-		String[] arrUserNames = new String[listUsers.size()];
-		for (int i = 0; i < listUsers.size(); i++) {
-			arrUserNames[i] = listUsers.get(i).userName;
-		}
+//		String[] arrUserNames = new String[listUsers.size()];
+//		for (int i = 0; i < listUsers.size(); i++) {
+//			arrUserNames[i] = listUsers.get(i).userName;
+//		}
+//		
+//		return new WSMListUsersResp(roomName, arrUserNames);
 		
-		return new WSMListUsersResp(roomName, arrUserNames);
+		return null;
 	}
 	
 	/**

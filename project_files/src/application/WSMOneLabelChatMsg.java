@@ -13,7 +13,7 @@ public abstract class WSMOneLabelChatMsg extends WSMessage {
 	public String name;
 	public String chatContent;
 	
-	public WSMOneLabelChatMsg(int opcode, int dataLength, byte[] msgBytes, Socket sender) {
+	public WSMOneLabelChatMsg(int opcode, int dataLength, byte[] msgBytes, WSClientHandler sender) {
 		super(opcode, dataLength, msgBytes, sender);
 	}
 	

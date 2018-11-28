@@ -8,7 +8,7 @@ public class WSMError extends WSMessage {
 
 	public WSMCode errCode;
 	
-	public WSMError(int opcode, int dataLength, byte[] msgBytes, Socket sender) {
+	public WSMError(int opcode, int dataLength, byte[] msgBytes, WSClientHandler sender) {
 		super(opcode, dataLength, msgBytes, sender);
 	}
 	

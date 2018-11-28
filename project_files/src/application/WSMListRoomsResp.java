@@ -7,7 +7,7 @@ public class WSMListRoomsResp extends WSMessage {
 	
 	public String[] arrRoomNames;
 	
-	public WSMListRoomsResp(int opcode, int dataLength, byte[] msgBytes, Socket sender) {
+	public WSMListRoomsResp(int opcode, int dataLength, byte[] msgBytes, WSClientHandler sender) {
 		super(opcode, dataLength, msgBytes, sender);
 	}
 	

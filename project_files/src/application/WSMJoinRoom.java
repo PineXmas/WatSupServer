@@ -12,7 +12,7 @@ public class WSMJoinRoom extends WSMessage {
 
 	public String roomName;
 	
-	public WSMJoinRoom(int opcode, int dataLength, byte[] msgBytes, Socket sender) {
+	public WSMJoinRoom(int opcode, int dataLength, byte[] msgBytes, WSClientHandler sender) {
 		super(opcode, dataLength, msgBytes, sender);
 	}
 	

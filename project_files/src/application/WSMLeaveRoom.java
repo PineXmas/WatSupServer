@@ -7,7 +7,7 @@ public class WSMLeaveRoom extends WSMessage {
 
 	public String roomName;
 	
-	public WSMLeaveRoom(int opcode, int dataLength, byte[] msgBytes, Socket sender) {
+	public WSMLeaveRoom(int opcode, int dataLength, byte[] msgBytes, WSClientHandler sender) {
 		super(opcode, dataLength, msgBytes, sender);
 	}
 	

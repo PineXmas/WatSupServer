@@ -12,7 +12,7 @@ public class WSMUnknown extends WSMessage {
 	 * @param data remaining bytes of the message
 	 * @param sender the socket where the message is received (optional, could be NULL)
 	 */
-	public WSMUnknown(int opcode, int dataLength, byte[] data, Socket sender) {
+	public WSMUnknown(int opcode, int dataLength, byte[] data, WSClientHandler sender) {
 		super(opcode, dataLength, data, sender);
 	}
 
