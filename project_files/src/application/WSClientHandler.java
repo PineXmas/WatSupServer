@@ -101,7 +101,7 @@ public class WSClientHandler {
 					ErrandBoy.println("Waiting to send messages to client " + getName() + " ...");
 					WSMessage msg;
 					while ( !((msg = sendingMsgQueue.take()) instanceof WSMStopSerer)) {
-						ErrandBoy.println("--> Server sends to client " + msg.clientHandler.getName() + ":");
+						ErrandBoy.println("--> Server sends to client " + getName() + ":");
 						ErrandBoy.println("    " + msg.toString());
 						
 						//send the message
@@ -168,12 +168,12 @@ public class WSClientHandler {
 	 * Get the name of this client: user-name@socket-address
 	 */
 	public String getName() {
-		String prefix = "<null-user>@";
+		String prefix = "<null-user>";
 		if (userName != null) {
 			prefix = userName;
 		}
 		
-		return prefix + getClientName(clientSocket);
+		return "[" + prefix + "@"+ getClientName(clientSocket) + "]";
 	}
 	
 	/**

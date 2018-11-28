@@ -455,7 +455,9 @@ public class WSServer {
 			}
 		}
 		
-		return new WSMListUsersAll((String[])listNames.toArray());
+		String[] arr = new String[listNames.size()];
+		arr = listNames.toArray(arr);
+		return new WSMListUsersAll(arr);
 	}
 	
 	/**
