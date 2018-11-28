@@ -88,14 +88,41 @@ public abstract class WSMessage {
 		WSMCode code = WSMCode.GetCode(opcode);
 		
 		switch (code) {
+		
 		case OPCODE_LOGIN:
 			return new WSMLogin(opcode, dataLength, msgBytes, null);
-
+		case OPCODE_LOGIN_SUCCESS:
+			return new WSMLoginSuccess(opcode, dataLength, msgBytes, null);
+		case OPCODE_LOGOUT:
+			return new WSMLogout(opcode, dataLength, msgBytes, null);
+		case OPCODE_LIST_ROOMS:
+			return new WSMListRooms(opcode, dataLength, msgBytes, null);
+		case OPCODE_LIST_ROOMS_RESP:
+			return new WSMListRoomsResp(opcode, dataLength, msgBytes, null);
+		case OPCODE_LIST_USERS_RESP:
+			return new WSMListUsersResp(opcode, dataLength, msgBytes, null);
+		case OPCODE_LIST_USERS_ALL:
+			return new WSMListUsersAll(opcode, dataLength, msgBytes, null);
+		case OPCODE_JOIN_ROOM:
+			return new WSMJoinRoom(opcode, dataLength, msgBytes, null);
+		case OPCODE_LEAVE_ROOM:
+			return new WSMLeaveRoom(opcode, dataLength, msgBytes, null);
+		case OPCODE_SEND_ROOM_MSG:
+			return new WSMSendRoomMsg(opcode, dataLength, msgBytes, null);
+		case OPCODE_TELL_ROOM_MSG:
+			return new WSMTellRoomMsg(opcode, dataLength, msgBytes, null);
+		case OPCODE_SEND_PRIVATE_MSG:
+			return new WSMSendPrivateMsg(opcode, dataLength, msgBytes, null);
+		case OPCODE_TELL_PRIVATE_MSG:
+			return new WSMTellPrivateMsg(opcode, dataLength, msgBytes, null);
+		case OPCODE_ERROR:
+			return new WSMError(opcode, dataLength, msgBytes, null);
 		default:
 			break;
+			
 		}
 		
-		return new WSMUnknown(opcode, dataLength, msgBytes, null);
+		return new WSMUnknown(WSMCode.OPCODE_UNKNOWN.rawCode, dataLength, msgBytes, null);
 	}
 	
 	/**
@@ -427,6 +454,27 @@ public abstract class WSMessage {
 //		WSMTellPrivateMsg msgTellPrivateMsg02 = new WSMTellPrivateMsg(msgTellPrivateMsg.opcode.rawCode, msgTellPrivateMsg.dataLength, msgTellPrivateMsg.msgBytes, null);
 //		ErrandBoy.println(msgTellPrivateMsg02.toString());
 //		ErrandBoy.println(msgTellPrivateMsg02.toStringOfBytes());
-//		ErrandBoy.println("-----------------------------------------------");		
+//		ErrandBoy.println("-----------------------------------------------");
+//		
+//		//test message: TELL ROOM MSG
+//		WSMTellRoomMsg msgTellRoomMsg = new WSMTellRoomMsg("thong", "strangers", "does any body see my one? Tell her that I'm standing next to the Pine tree!");
+//		ErrandBoy.println(msgTellRoomMsg.toString());
+//		ErrandBoy.println(msgTellRoomMsg.toStringOfBytes());
+//		ErrandBoy.println("-----------------------------------------------");
+//		WSMTellRoomMsg msgTellRoomMsg02 = new WSMTellRoomMsg(msgTellRoomMsg.opcode.rawCode, msgTellRoomMsg.dataLength, msgTellRoomMsg.msgBytes, null);
+//		ErrandBoy.println(msgTellRoomMsg02.toString());
+//		ErrandBoy.println(msgTellRoomMsg02.toStringOfBytes());
+//		ErrandBoy.println("-----------------------------------------------");
+//
+		//test message: LIST_USERS_ALL
+		String[] arrUserNames = {"thong", "an", "dai", "thao"};
+		WSMListUsersAll msgListUsersAll = new WSMListUsersAll(arrUserNames);
+		ErrandBoy.println(msgListUsersAll.toString());
+		ErrandBoy.println(msgListUsersAll.toStringOfBytes());
+		ErrandBoy.println("-----------------------------------------------");
+		WSMListUsersAll msgListUsersAll02 = new WSMListUsersAll(msgListUsersAll.opcode.rawCode, msgListUsersAll.dataLength, msgListUsersAll.msgBytes, null);
+		ErrandBoy.println(msgListUsersAll02.toString());
+		ErrandBoy.println(msgListUsersAll02.toStringOfBytes());
+		ErrandBoy.println("-----------------------------------------------");
 	}
 }

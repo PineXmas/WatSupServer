@@ -1,7 +1,5 @@
 package application;
 
-import java.net.Socket;
-
 public class WSMUnknown extends WSMessage {
 	public String dataAsText;
 	

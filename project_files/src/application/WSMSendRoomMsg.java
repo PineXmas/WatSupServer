@@ -1,7 +1,5 @@
 package application;
 
-import java.net.Socket;
-
 public class WSMSendRoomMsg extends WSMOneLabelChatMsg {
 	public WSMSendRoomMsg(int opcode, int dataLength, byte[] msgBytes, WSClientHandler sender) {
 		super(opcode, dataLength, msgBytes, sender);

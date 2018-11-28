@@ -1,7 +1,5 @@
 package application;
 
-import java.net.Socket;
-
 /**
  * Used as a base class for messages having no additional data besides opcode & data-length fields.
  * @author pinex

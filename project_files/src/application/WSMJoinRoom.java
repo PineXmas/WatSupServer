@@ -1,6 +1,5 @@
 package application;
 
-import java.net.Socket;
 import java.nio.ByteBuffer;
 
 /**

@@ -71,7 +71,7 @@ public class WSServer {
 					while (true) {
 						ErrandBoy.println("Waiting for new connection...");
 						Socket clientSocket = listeningSocket.accept();
-						ErrandBoy.println("Connected to client at " + clientSocket.getInetAddress().getHostName() + ", port " + clientSocket.getPort());
+						ErrandBoy.println("Connected to client at " + WSClientHandler.getClientName(clientSocket) + clientSocket.getPort());
 						
 						//assign client to a dealer for further handling
 						WSClientHandler dealer = new WSClientHandler(clientSocket, receivingMsgQueue);
