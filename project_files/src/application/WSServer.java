@@ -123,7 +123,7 @@ public class WSServer {
 					
 					while ( !((msg = receivingMsgQueue.take()) instanceof WSMStopSerer)) {
 						try {
-							ErrandBoy.println("Client " + WSClientHandler.getClientName(msg.clientHandler.clientSocket) + " sent: " + msg.toString());
+							ErrandBoy.println("Client " + msg.clientHandler.getName() + " sent: " + msg.toString());
 
 							//do nothing if the message (somehow) does not have any bound client-handler
 							if (msg.clientHandler == null) {
@@ -496,6 +496,12 @@ public class WSServer {
 		if (found == -1) {
 			return listJoinedRooms;
 		}
+		
+		//stop the user's client-handler
+		listClientSockets.get(found).stop();
+		
+		//remove user out of client-list
+		listClientSockets.remove(found);
 		
 		//go to all rooms to search for the user & remove
 		for (int i = 0; i < listRooms.size(); i++) {

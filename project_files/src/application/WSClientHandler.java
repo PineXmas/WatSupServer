@@ -50,7 +50,7 @@ public class WSClientHandler {
 					ArrayList<WSMessage> listMsgs;
 					ArrayList<Byte> listNewIncompleteMsg = new ArrayList<>();
 					while (true) {
-						ErrandBoy.println("Waiting for input from client " + getClientName(clientSocket));
+						ErrandBoy.println("Waiting for input from client " + getName());
 						readBytes = inputStream.read(buff);
 						if (readBytes <= 0) {
 							break;
@@ -59,12 +59,12 @@ public class WSClientHandler {
 						//parse read bytes into messages
 						byte[] actualReadBuff = ByteBuffer.allocate(readBytes).put(buff, 0, readBytes).array();
 						listMsgs = WSMessage.parse2Msgs(actualReadBuff, arrIncompleteMsg, listNewIncompleteMsg);
-						ErrandBoy.println("  Read " + listMsgs.size() + " complete msgs from client " + getClientName(clientSocket));
+						ErrandBoy.println("  Read " + listMsgs.size() + " complete msgs from client " + getName());
 						
 						//update incomplete message
 						arrIncompleteMsg = ErrandBoy.convertList2Array(listNewIncompleteMsg);
 						if (arrIncompleteMsg.length > 0) {
-							ErrandBoy.println("  Incomplete msg from client " + getClientName(clientSocket) + ": " + new String(arrIncompleteMsg));
+							ErrandBoy.println("  Incomplete msg from client " + getName() + ": " + new String(arrIncompleteMsg));
 						}
 						
 						//enqueue messages
@@ -77,7 +77,7 @@ public class WSClientHandler {
 					
 					//reach here means the input stream has reach eof
 					if (readBytes < 0) {
-						ErrandBoy.println("Client " + getClientName(clientSocket) + " input is EOF, reading is stopped");
+						ErrandBoy.println("Client " + getName() + " input is EOF, reading is stopped");
 					}
 				} catch (Exception e) {
 					ErrandBoy.printlnError(e, "Error while reading from client's input stream");
@@ -98,19 +98,19 @@ public class WSClientHandler {
 					//get client's output stream
 					OutputStream outputStream = clientSocket.getOutputStream();
 					
-					ErrandBoy.println("Waiting to send messages to client " + getClientName(clientSocket) + " ...");
+					ErrandBoy.println("Waiting to send messages to client " + getName() + " ...");
 					WSMessage msg;
 					while ( !((msg = sendingMsgQueue.take()) instanceof WSMStopSerer)) {
-						ErrandBoy.println("--> Server sends to client " + getClientName(msg.clientHandler.clientSocket) + ":");
+						ErrandBoy.println("--> Server sends to client " + msg.clientHandler.getName() + ":");
 						ErrandBoy.println("    " + msg.toString());
 						
 						//send the message
 						outputStream.write(msg.msgBytes);
 					}
 					
-					ErrandBoy.println("Receiver-thread has stopped");
+					ErrandBoy.println("Sender-thread of client " + getName() + " has stopped");
 				} catch (Exception e) {
-					ErrandBoy.printlnError(e, "Error while sending message to client " + getClientName(clientSocket));
+					ErrandBoy.printlnError(e, "Error while sending message to client " + getName());
 				}
 				
 			}
@@ -141,7 +141,7 @@ public class WSClientHandler {
 			
 			clientSocket.close();
 		} catch (Exception e) {
-			ErrandBoy.printlnError(e, "Error when closing client socket " + getClientName(clientSocket));
+			ErrandBoy.printlnError(e, "Error when closing client socket " + getName());
 		}
 	}
 	
@@ -157,7 +157,7 @@ public class WSClientHandler {
 				try {
 					sendingMsgQueue.put(msg);
 				} catch (InterruptedException e) {
-					ErrandBoy.printlnError(e, "Error while enqueueing to sending-queue of client " + getClientName(clientSocket));
+					ErrandBoy.printlnError(e, "Error while enqueueing to sending-queue of client " + getName());
 				}
 				
 			}
@@ -165,14 +165,15 @@ public class WSClientHandler {
 	}
 	
 	/**
-	 * Get the name of this client: could be the user-name, if user name is not set, the socket-name wil be returned instead
+	 * Get the name of this client: user-name@socket-address
 	 */
 	public String getName() {
+		String prefix = "<null-user>@";
 		if (userName != null) {
-			return userName;
+			prefix = userName;
 		}
 		
-		return getClientName(clientSocket);
+		return prefix + getClientName(clientSocket);
 	}
 	
 	/**
