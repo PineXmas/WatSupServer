@@ -7,8 +7,7 @@ package application;
  */
 public class WSMStopSerer extends WSMessage {
 
-	public WSMStopSerer(int opcode, int dataLength, byte[] data) {
-		super(opcode, dataLength, data);
+	public WSMStopSerer() {
 	}
 
 	@Override

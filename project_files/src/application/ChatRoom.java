@@ -19,27 +19,41 @@ public class ChatRoom {
 		this.roomName = roomName;
 	}
 	
+	/**
+	 * Try to add the new user if not joined yet
+	 * @param newUser
+	 */
 	public void addUser(WSClientHandler newUser) {
+		if (searchUser(newUser.userName) >= 0) {
+			return;
+		}
+		
 		listUsers.add(newUser);
+	}
+	
+	public void removeUser(int index) {
+		listUsers.remove(index);
 	}
 	
 	public void addMessage(ChatMessage newMsg) {
 		listMsgs.add(newMsg);
+	}
+
+	public int searchUser(String userName) {
+		return WSServer.searchUser(userName, listUsers);
 	}
 	
 	/**
 	 * Generate LIST-USERS-RESP message ready to send to a client.
 	 * @return
 	 */
-	public WSMListUsersResp genListUsersMsg() {
-//		String[] arrUserNames = new String[listUsers.size()];
-//		for (int i = 0; i < listUsers.size(); i++) {
-//			arrUserNames[i] = listUsers.get(i).userName;
-//		}
-//		
-//		return new WSMListUsersResp(roomName, arrUserNames);
+	public WSMListUsersResp genListUsersRespMsg() {
+		String[] arrUserNames = new String[listUsers.size()];
+		for (int i = 0; i < listUsers.size(); i++) {
+			arrUserNames[i] = listUsers.get(i).userName;
+		}
 		
-		return null;
+		return new WSMListUsersResp(roomName, arrUserNames);
 	}
 	
 	/**

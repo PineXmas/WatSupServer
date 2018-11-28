@@ -1,15 +1,32 @@
 package application;
 
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class WSClientHandler {
 	Socket clientSocket;
 	Thread listener;
 	final BlockingQueue<WSMessage> receivingMsgQueue;
+	
+	/**
+	 * Store the user name bound to this client-socket
+	 */
+	String userName = null;
+	
+	/**
+	 * Store messages waiting to be sent to the client
+	 */
+	LinkedBlockingQueue<WSMessage> sendingMsgQueue = new LinkedBlockingQueue<>();
+	
+	/**
+	 * Keep waiting on the sending-message-queue & send message to client
+	 */
+	Thread sender;
 	
 	public WSClientHandler(Socket clientSocket, BlockingQueue<WSMessage> receivingMsgQueue) {
 		this.clientSocket = clientSocket;
@@ -21,6 +38,7 @@ public class WSClientHandler {
 			
 			@Override
 			public void run() {
+				
 				try {
 					//set up input stream reader
 					InputStream inputStream = clientSocket.getInputStream();
@@ -69,26 +87,92 @@ public class WSClientHandler {
 				
 			}
 		});
+	
+		//set up sender thread
+		sender = new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				
+				try {
+					//get client's output stream
+					OutputStream outputStream = clientSocket.getOutputStream();
+					
+					ErrandBoy.println("Waiting to send messages to client " + getClientName(clientSocket) + " ...");
+					WSMessage msg;
+					while ( !((msg = sendingMsgQueue.take()) instanceof WSMStopSerer)) {
+						ErrandBoy.println("--> Server sends to client " + getClientName(msg.clientHandler.clientSocket) + ":");
+						ErrandBoy.println("    " + msg.toString());
+						
+						//send the message
+						outputStream.write(msg.msgBytes);
+					}
+					
+					ErrandBoy.println("Receiver-thread has stopped");
+				} catch (Exception e) {
+					ErrandBoy.printlnError(e, "Error while sending message to client " + getClientName(clientSocket));
+				}
+				
+			}
+		});
 	}
 	
-	//keep reading input from client's socket
-	public void listen() {
+	/**
+	 * Start 2 threads: reading from client's input stream & writing to client's output stream 
+	 */
+	public void start() {
 		if (clientSocket == null) {
 			ErrandBoy.println("Client socket is null, cannot listen from");
 			return;
 		}
 		
 		listener.start();
+		sender.start();
 	}
 	
-	//stop reading input & close socket
-	public void close() {
+	/**
+	 * Try to stop the 2 threads by closing the socket
+	 */
+	public void stop() {
 		
 		try {
+			//enqueue the stop-server message to signal the sender-thread to stop sending messages
+			enqueueMessage(new WSMStopSerer());
+			
 			clientSocket.close();
 		} catch (Exception e) {
 			ErrandBoy.printlnError(e, "Error when closing client socket " + getClientName(clientSocket));
 		}
+	}
+	
+	/**
+	 * Enqueue the given message. The message will be sent later by the sender. <br>
+	 * <strong>NOTE</strong>: calling this function will start a new thread to enqueue. This is to make sure the caller is not blocked by the SYNCHRONIZED queue.  
+	 */
+	public void enqueueMessage(WSMessage msg) {
+		new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				try {
+					sendingMsgQueue.put(msg);
+				} catch (InterruptedException e) {
+					ErrandBoy.printlnError(e, "Error while enqueueing to sending-queue of client " + getClientName(clientSocket));
+				}
+				
+			}
+		}).start();
+	}
+	
+	/**
+	 * Get the name of this client: could be the user-name, if user name is not set, the socket-name wil be returned instead
+	 */
+	public String getName() {
+		if (userName != null) {
+			return userName;
+		}
+		
+		return getClientName(clientSocket);
 	}
 	
 	/**

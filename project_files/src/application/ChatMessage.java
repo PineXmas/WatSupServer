@@ -15,7 +15,6 @@ public class ChatMessage {
 	}
 	
 	public String toString() {
-		//return sender.userName + " ::: " + content;
-		return null;
+		return sender.getName() + " ::: " + content;
 	}
 }

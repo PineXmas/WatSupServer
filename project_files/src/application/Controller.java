@@ -60,7 +60,7 @@ public class Controller {
 		
 		init();
 		
-		server.Start();
+		server.start();
 		btnStart.setDisable(true);
 		btnStop.setDisable(false);
 	}
@@ -68,7 +68,7 @@ public class Controller {
 	public void onBtnStop_Click(ActionEvent event) {
 		ErrandBoy.println("btnStop is pressed");
 		
-		server.Stop();
+		server.stop();
 		server = null;
 		
 		btnStart.setDisable(false);
