@@ -12,7 +12,7 @@ public class WSMListUsersAll extends WSMessage {
 	
 	public WSMListUsersAll(String[] arrUserNames) {
 		//opcode
-		opcode = WSMCode.OPCODE_LIST_USERS_RESP;
+		opcode = WSMCode.OPCODE_LIST_USERS_ALL;
 		
 		//attributes
 		this.arrUserNames = new String[arrUserNames.length];

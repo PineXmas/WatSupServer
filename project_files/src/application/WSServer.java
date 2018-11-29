@@ -6,9 +6,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils.Collections;
-import com.sun.xml.internal.ws.resources.WsdlmodelMessages;
-
 public class WSServer {
 	
 	/***********************************************
