@@ -140,20 +140,20 @@ public class WSServer {
 								//case 0: do nothing if a logged-in user send another LOG_IN message
 								if (msgLogin.clientHandler.userName != null) {
 									ErrandBoy.println("An already logged-in user sends another LOG_IN message. Ignore the message.");
-									break;
+									continue;
 								}
 								
 								//case 1: TOO_MANY_USERS
 								if (listClientSockets.size() >= WSSettings._MAX_USERS) {
 									msgLogin.clientHandler.enqueueMessage(new WSMError(WSMCode.ERR_TOO_MANY_USERS));
-									break;
+									continue;
 								}
 								
 								//case 2: NAME_EXISTS
 								found = searchUser(msgLogin.userName, listClientSockets);
 								if (found >= 0) {
 									msgLogin.clientHandler.enqueueMessage(new WSMError(WSMCode.ERR_NAME_EXISTS));
-									break;
+									continue;
 								}
 								
 								//case 3: LOGIN_SUCCESS
@@ -218,14 +218,14 @@ public class WSServer {
 								 * notify all users about the new room
 								 */
 								WSMJoinRoom msgJoinRoom = (WSMJoinRoom)msg;
-								if (listRooms.size() >= WSSettings._MAX_ROOMS) {
-									msgJoinRoom.clientHandler.enqueueMessage(new WSMError(WSMCode.ERR_TOO_MANY_ROOMS));
-									break;
-								}
 								found = searchRoom(msgJoinRoom.roomName);
 								if (found >= 0) {
 									 listRooms.get(found).addUser(msgJoinRoom.clientHandler);
 								} else {
+									if (listRooms.size() >= WSSettings._MAX_ROOMS) {
+										msgJoinRoom.clientHandler.enqueueMessage(new WSMError(WSMCode.ERR_TOO_MANY_ROOMS));
+										break;
+									}
 									addRoom(msgJoinRoom.roomName, msgJoinRoom.clientHandler);
 								}
 								sendAllUsers(genListRoomsRespMsg());

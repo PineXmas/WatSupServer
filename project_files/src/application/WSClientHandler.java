@@ -78,6 +78,8 @@ public class WSClientHandler {
 					//reach here means the input stream has reach eof
 					if (readBytes < 0) {
 						ErrandBoy.println("Client " + getName() + " input is EOF, reading is stopped");
+						
+						//TODO remove the user out of WatSup & notify all users
 					}
 				} catch (Exception e) {
 					ErrandBoy.printlnError(e, "Error while reading from client's input stream");
