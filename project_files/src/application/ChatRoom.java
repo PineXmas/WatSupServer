@@ -22,13 +22,15 @@ public class ChatRoom {
 	/**
 	 * Try to add the new user if not joined yet
 	 * @param newUser
+	 * @return TRUE if the user is added to room (new user), otherwise return FALSE
 	 */
-	public void addUser(WSClientHandler newUser) {
+	public boolean addUser(WSClientHandler newUser) {
 		if (searchUser(newUser.userName) >= 0) {
-			return;
+			return false;
 		}
 		
 		listUsers.add(newUser);
+		return true;
 	}
 	
 	public void removeUser(int index) {

@@ -220,15 +220,25 @@ public class WSServer {
 								WSMJoinRoom msgJoinRoom = (WSMJoinRoom)msg;
 								found = searchRoom(msgJoinRoom.roomName);
 								if (found >= 0) {
-									 listRooms.get(found).addUser(msgJoinRoom.clientHandler);
+									ChatRoom foundRoom = listRooms.get(found);
+									 if (foundRoom.addUser(msgJoinRoom.clientHandler)) {
+										 //notify all users in the room if this new user is added successfully
+										 
+										 sendMsg2Users(foundRoom.genListUsersRespMsg() , foundRoom.listUsers);
+									 }
+									 
 								} else {
 									if (listRooms.size() >= WSSettings._MAX_ROOMS) {
 										msgJoinRoom.clientHandler.enqueueMessage(new WSMError(WSMCode.ERR_TOO_MANY_ROOMS));
 										break;
 									}
-									addRoom(msgJoinRoom.roomName, msgJoinRoom.clientHandler);
+									ChatRoom newRoom = addRoom(msgJoinRoom.roomName, msgJoinRoom.clientHandler);
+									
+									//notify all users in WatSup about the new room & the room's list of users
+									sendAllUsers(genListRoomsRespMsg());
+									sendAllUsers(newRoom.genListUsersRespMsg());
 								}
-								sendAllUsers(genListRoomsRespMsg());
+								
 								
 								break;
 								
@@ -426,11 +436,14 @@ public class WSServer {
 	
 	/**
 	 * Create a new room, add in the user, and add the room to the room-list
+	 * @return the new room
 	 */
-	public void addRoom(String roomName, WSClientHandler theFirstUser) {
+	public ChatRoom addRoom(String roomName, WSClientHandler theFirstUser) {
 		ChatRoom newRoom = new ChatRoom(roomName);
 		newRoom.addUser(theFirstUser);
 		listRooms.add(newRoom);
+		
+		return newRoom;
 	}
 	
 	/**
