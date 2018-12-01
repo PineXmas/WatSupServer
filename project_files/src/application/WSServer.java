@@ -262,7 +262,12 @@ public class WSServer {
 									break;
 								}
 								aRoom.removeUser(found);
-								sendMsg2Users(aRoom.genListUsersRespMsg(), aRoom.listUsers);
+								
+//								//old code: send to all other users in the room
+//								sendMsg2Users(aRoom.genListUsersRespMsg(), aRoom.listUsers);
+								
+								//new code: send to all users in WatSup
+								sendAllUsers(aRoom.genListUsersRespMsg());
 								
 								break;
 								
