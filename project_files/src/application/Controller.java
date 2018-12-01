@@ -36,7 +36,7 @@ public class Controller {
 	/***********************************************
 	 * FUNCTIONS
 	 ***********************************************/
-	
+
 	@FXML
 	protected void initialize() {
 	}
@@ -49,7 +49,7 @@ public class Controller {
 		// create server object
 		server = new WSServer(portNumber, WSSettings._MAX_ROOMS, WSSettings._MAX_USERS);
 	}
-	
+
 	/**
 	 * Initialize environment for WatSup server
 	 */
@@ -73,16 +73,16 @@ public class Controller {
 
 	public void onBtnStart_Click(ActionEvent event) {
 		if (isRunInConsole && event instanceof WSActionEvent) {
-			init(((WSActionEvent)event).portNumber);
+			init(((WSActionEvent) event).portNumber);
 			server.start();
 			return;
 		}
-		
+
 		ErrandBoy.println("btnStart is pressed");
 
 		init();
 		server.start();
-		
+
 		btnStart.setDisable(true);
 		btnStop.setDisable(false);
 	}
@@ -105,10 +105,10 @@ public class Controller {
 
 			server.stop();
 			server = null;
-			
+
 			return;
 		}
-		
+
 		ErrandBoy.println("btnStop is pressed");
 		Platform.runLater(new Runnable() {
 
@@ -130,13 +130,12 @@ public class Controller {
 
 				server.stop();
 				server = null;
-				
+
 				btnStart.setDisable(false);
 
 			}
 		});
 
-		
 		btnStart.setDisable(true);
 		btnStop.setDisable(true);
 	}
@@ -144,11 +143,11 @@ public class Controller {
 	public void onBtnRoomList_Click(ActionEvent event) {
 		ErrandBoy.println("btnRoomList is pressed");
 		txtDisplay.clear();
-		
+
 		if (server == null) {
 			return;
 		}
-		
+
 		txtDisplay.appendText("[ROOM LIST]\n\n");
 		for (ChatRoom room : server.listRooms) {
 			txtDisplay.appendText(room.roomName + "\n");
@@ -158,11 +157,11 @@ public class Controller {
 	public void onBtnUserList_Click(ActionEvent event) {
 		ErrandBoy.println("btnUserList is pressed");
 		txtDisplay.clear();
-		
+
 		if (server == null) {
 			return;
 		}
-		
+
 		txtDisplay.appendText("[USER LIST]\n\n");
 		for (WSClientHandler client : server.listClientSockets) {
 			txtDisplay.appendText(client.getName() + "\n");
@@ -202,45 +201,60 @@ public class Controller {
 	}
 
 	public static void main(String[] args) {
-		
-		//TODO allow user to input PORT NUMBER
-		
-		Controller controller = new Controller();
-		controller.isRunInConsole = true;
-		boolean isRunning = false;
-		ErrandBoy.println("Please enter:\n"
-				+ "    START: to start server\n"
-				+ "    STOP : to stop server\n"
-				+ "    QUIT : to exit this program\n");
-		
+
 		try {
 			InputStreamReader inputStreamReader = new InputStreamReader(System.in);
 			BufferedReader reader = new BufferedReader(inputStreamReader);
-			
 			String command;
-			boolean isQuit =false;
-			while (!isQuit) {
+			boolean isQuit = false;
+
+			/**
+			 * CONSOLE or GUI
+			 */
+			while (true) {
+				ErrandBoy.println("Select C(onsole) or G(UI): ");
 				command = reader.readLine().toUpperCase().trim();
 				
+				if (command.equals("G")) {
+					Main.main(args);
+					return;
+				}
+				
+				if (command.equals("C")) {
+					break;
+				}
+			}
+
+			Controller controller = new Controller();
+			controller.isRunInConsole = true;
+			boolean isRunning = false;
+			ErrandBoy.println("Please enter:\n" + "    START: to start server\n" + "    STOP : to stop server\n"
+					+ "    QUIT : to exit this program\n");
+
+			isQuit = false;
+			while (!isQuit) {
+				command = reader.readLine().toUpperCase().trim();
+
 				switch (command) {
 				case "START":
 					if (isRunning) {
 						ErrandBoy.println("Server is already running.");
 						break;
 					}
-					
+
 					int port;
 					try {
 						ErrandBoy.println("Enter a port number: ");
 						port = Integer.valueOf(reader.readLine());
 					} catch (Exception e) {
-						ErrandBoy.printlnError(e, "Error while parsing port number, use default port " + WSSettings._DEFAULT_PORT);
+						ErrandBoy.printlnError(e,
+								"Error while parsing port number, use default port " + WSSettings._DEFAULT_PORT);
 						port = WSSettings._DEFAULT_PORT;
 					}
-					
+
 					ErrandBoy.println("Starting server...");
 					isRunning = true;
-					
+
 					WSActionEvent event = new WSActionEvent(port);
 					controller.onBtnStart_Click(event);
 					break;
@@ -250,7 +264,7 @@ public class Controller {
 						ErrandBoy.println("Server is not running.");
 						break;
 					}
-					
+
 					ErrandBoy.println("Stopping server...");
 					isRunning = false;
 					controller.onBtnStop_Click(null);
@@ -260,16 +274,16 @@ public class Controller {
 						ErrandBoy.println("Server is still running, use STOP first!");
 						break;
 					}
-					
+
 					isQuit = true;
 					break;
 				default:
 					break;
 				}
 			}
-			
+
 			reader.close();
-			
+
 			ErrandBoy.println("Server shut down. Bye!");
 		} catch (Exception e) {
 			ErrandBoy.printlnError(e, "Error while reading user's command");
