@@ -448,6 +448,14 @@ public class WSServer {
 	}
 
 	/**
+	 * Search for the user in the server's client-list.
+	 */
+	public int searchUser(String userName) {
+		return searchUser(userName, listClientSockets);
+	}
+
+	
+	/**
 	 * Search for the given room.
 	 */
 	public int searchRoom(String roomName) {

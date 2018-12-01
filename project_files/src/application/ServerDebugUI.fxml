@@ -5,19 +5,51 @@
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.paint.LinearGradient?>
+<?import javafx.scene.paint.Stop?>
+<?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="800.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.Controller">
+<AnchorPane prefHeight="524.0" prefWidth="470.0"
+	xmlns="http://javafx.com/javafx/8.0.171"
+	xmlns:fx="http://javafx.com/fxml/1"
+	fx:controller="application.Controller">
 	<children>
-		<Button fx:id="btnStop" disable="true" layoutX="187.0" layoutY="31.0" mnemonicParsing="false" onAction="#onBtnStop_Click" prefHeight="50.0" prefWidth="51.0" text="Stop" />
-		<TextArea fx:id="txtDisplay" editable="false" layoutX="286.0" layoutY="14.0" prefHeight="771.0" prefWidth="300.0" />
-		<Button fx:id="btnRoomList" layoutX="17.0" layoutY="141.0" mnemonicParsing="false" onAction="#onBtnRoomList_Click" prefHeight="51.0" prefWidth="222.0" text="Room list" />
-		<Label layoutX="19.0" layoutY="213.0" text="Room name" />
-		<TextField fx:id="txtRoomName" layoutX="19.0" layoutY="248.0" prefHeight="51.0" prefWidth="222.0" />
-		<Button fx:id="btnRoomMessages" layoutX="17.0" layoutY="306.0" mnemonicParsing="false" onAction="#onBtnRoomMessages_Click" prefHeight="51.0" prefWidth="222.0" text="Room messages" />
-		<Button fx:id="btnUserList" layoutX="17.0" layoutY="389.0" mnemonicParsing="false" onAction="#onBtnUserList_Click" prefHeight="51.0" prefWidth="222.0" text="User list" />
-		<Button fx:id="btnSysMessageHistory" layoutX="19.0" layoutY="451.0" mnemonicParsing="false" onAction="#onBtnSysMessageHistory_Click" prefHeight="51.0" prefWidth="222.0" text="Sys. message history" />
-      <TextField fx:id="txtPortNumber" layoutX="17.0" layoutY="31.0" prefHeight="51.0" prefWidth="102.0" text="8312" />
-      <Label layoutX="17.0" layoutY="14.0" text="Server control" />
-		<Button fx:id="btnStart" layoutX="130.0" layoutY="31.0" mnemonicParsing="false" onAction="#onBtnStart_Click" prefHeight="50.0" prefWidth="51.0" text="Start" />
+		<Label layoutX="171.0" layoutY="25.0" text="WATSUP">
+			<font>
+				<Font name="Times New Roman Bold" size="30.0" />
+			</font>
+			<textFill>
+				<LinearGradient cycleMethod="REFLECT" endX="1.0"
+					endY="1.0">
+					<stops>
+						<Stop color="#1e1d09" />
+						<Stop color="#24cdeb" offset="1.0" />
+					</stops>
+				</LinearGradient>
+			</textFill>
+		</Label>
+		<Button fx:id="btnStop" disable="true" layoutX="76.0"
+			layoutY="154.0" mnemonicParsing="false" onAction="#onBtnStop_Click"
+			prefHeight="50.0" prefWidth="51.0" text="Stop" />
+		<TextArea fx:id="txtDisplay" editable="false" layoutX="152.0"
+			layoutY="78.0" prefHeight="426.0" prefWidth="300.0" wrapText="true" />
+		<Button fx:id="btnRoomList" layoutX="19.0" layoutY="269.0"
+			mnemonicParsing="false" onAction="#onBtnRoomList_Click"
+			prefHeight="51.0" prefWidth="102.0" text="Room list" />
+		<Button fx:id="btnUserList" layoutX="19.0" layoutY="329.0"
+			mnemonicParsing="false" onAction="#onBtnUserList_Click"
+			prefHeight="51.0" prefWidth="102.0" text="User list" />
+		<TextField fx:id="txtPortNumber" layoutX="19.0"
+			layoutY="95.0" prefHeight="51.0" prefWidth="102.0" text="8312" />
+		<Label layoutX="19.0" layoutY="78.0" text="Server control" />
+		<Button fx:id="btnStart" layoutX="19.0" layoutY="154.0"
+			mnemonicParsing="false" onAction="#onBtnStart_Click"
+			prefHeight="50.0" prefWidth="51.0" text="Start" />
+		<TextField fx:id="txtUserName" layoutX="19.0"
+			layoutY="390.0" prefHeight="51.0" prefWidth="102.0" />
+		<Button fx:id="btnKickUser" layoutX="19.0" layoutY="453.0"
+			mnemonicParsing="false" onAction="#onBtnKickUser_Click"
+			prefHeight="51.0" prefWidth="102.0" text="Kick user" />
+		<Label layoutX="19.0" layoutY="245.0" text="Commands" />
 	</children>
 </AnchorPane>

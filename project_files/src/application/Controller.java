@@ -1,5 +1,7 @@
 package application;
 
+import java.util.ArrayList;
+
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -14,11 +16,10 @@ public class Controller {
 	public Button btnStart;
 	public Button btnStop;
 	public Button btnRoomList;
-	public Button btnRoomMessages;
 	public Button btnUserList;
-	public Button btnSysMessageHistory;
+	public Button btnKickUser;
 	public TextArea txtDisplay;
-	public TextField txtRoomName;
+	public TextField txtUserName;
 	public TextField txtPortNumber;
 	
 	/***********************************************
@@ -68,6 +69,20 @@ public class Controller {
 	public void onBtnStop_Click(ActionEvent event) {
 		ErrandBoy.println("btnStop is pressed");
 		
+		//send all users KICKED_OUT message
+		for (int i = 0; i < server.listClientSockets.size(); i++) {
+			if (server.listClientSockets.get(i).userName != null) {
+				server.listClientSockets.get(i).enqueueMessage(new WSMError(WSMCode.ERR_KICKED_OUT));	
+			}
+		}
+		
+		try {
+			ErrandBoy.println("Sleep 1 sec to let all the sender-threads to send KICKED_OUT msg");
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			ErrandBoy.printlnError(e, "Error while sleeping before kick out all users");
+		}
+		
 		server.stop();
 		server = null;
 		
@@ -89,5 +104,37 @@ public class Controller {
 	
 	public void onBtnSysMessageHistory_Click(ActionEvent event) {
 		ErrandBoy.println("btnSysMessageHistory is pressed");
+	}
+
+	public void onBtnKickUser_Click(ActionEvent event) {
+		if (server == null) {
+			return;
+		}
+		
+		String userName = txtUserName.getText();
+		int found = server.searchUser(userName);
+		if (found >= 0) {
+			//send the user KICKED_OUT message
+			server.listClientSockets.get(found).enqueueMessage(new WSMError(WSMCode.ERR_KICKED_OUT));
+			
+			try {
+				ErrandBoy.println("Sleep 1 sec to let the sender-thread of " + userName + " to send KICKED_OUT msg");
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				ErrandBoy.printlnError(e, "Error while sleeping before kick out user " + userName);
+			}
+			
+			//remove user out of WatSup
+			ArrayList<ChatRoom> listJoinedRooms = server.removeUser(userName);
+
+			//notify all remaining users
+			server.sendAllUsers(server.genListUsersAllMsg());
+
+			//notify other users in the rooms this user has joined
+			for (ChatRoom chatRoom : listJoinedRooms) {
+				WSMListUsersResp msgNewUserList = chatRoom.genListUsersRespMsg();
+				server.sendAllUsers(msgNewUserList);
+			}
+		}
 	}
 }
