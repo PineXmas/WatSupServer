@@ -39,7 +39,7 @@ public class Main extends Application {
 			primaryStage.setScene(scene);
 			
 			//display stage
-			primaryStage.setTitle("WatSup Server Viewer");
+			primaryStage.setTitle("WatSup Server Admin");
 			primaryStage.show();
 		} catch(Exception e) {
 			e.printStackTrace();

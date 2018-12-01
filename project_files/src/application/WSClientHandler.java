@@ -81,8 +81,19 @@ public class WSClientHandler {
 						ErrandBoy.println("Client " + getName() + " input is EOF, Receiver-thread has stopped");
 					}
 					
-					//notify server about the dead user
+
 					isDead = true;
+					
+				} catch (Exception e) {
+					ErrandBoy.printlnError(e, "Error while reading from client's input stream");
+					isDead = true;
+				} finally {
+					
+					if (!isDead) {
+						return;
+					}
+					
+					//notify server about the dead user
 					WSMRemoveDeadUser msg;
 					if (userName != null) {
 						msg = new WSMRemoveDeadUser(userName);
@@ -91,12 +102,11 @@ public class WSClientHandler {
 						msg = new WSMRemoveDeadUser(myself);
 						msg.clientHandler = myself;
 					}
-					receivingMsgQueue.put(msg);	
-					
-				} catch (Exception e) {
-					ErrandBoy.printlnError(e, "Error while reading from client's input stream");
-				} finally {
-					// TODO finalize client socket after error occurs
+					try {
+						receivingMsgQueue.put(msg);
+					} catch (InterruptedException e) {
+						ErrandBoy.printlnError(e, "Error while enqueueing REMOVE_DEAD_USER msg for user " + getName());
+					}
 				}
 				
 			}
