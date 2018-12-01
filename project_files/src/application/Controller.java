@@ -1,5 +1,8 @@
 package application;
 
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 
 import javafx.application.Platform;
@@ -28,15 +31,25 @@ public class Controller {
 	 ***********************************************/
 
 	WSServer server;
+	boolean isRunInConsole = false;
 
 	/***********************************************
 	 * FUNCTIONS
 	 ***********************************************/
-
+	
 	@FXML
 	protected void initialize() {
 	}
 
+	/**
+	 * Initialize environment for WatSup server using the given port number
+	 */
+	void init(int portNumber) {
+
+		// create server object
+		server = new WSServer(portNumber, WSSettings._MAX_ROOMS, WSSettings._MAX_USERS);
+	}
+	
 	/**
 	 * Initialize environment for WatSup server
 	 */
@@ -45,12 +58,13 @@ public class Controller {
 		int portNumber = WSSettings._DEFAULT_PORT;
 		try {
 			portNumber = Integer.valueOf(txtPortNumber.getText());
-		} catch (NumberFormatException e) {
-			ErrandBoy.printlnError(e, "Invalid port number");
+		} catch (Exception e) {
+			ErrandBoy.printlnError(e, "Error while parsing port number, use default port " + WSSettings._DEFAULT_PORT);
+			portNumber = WSSettings._DEFAULT_PORT;
 		}
 
 		// create server object
-		server = new WSServer(portNumber, WSSettings._MAX_ROOMS, WSSettings._MAX_USERS);
+		init(portNumber);
 	}
 
 	/***********************************************
@@ -58,18 +72,44 @@ public class Controller {
 	 ***********************************************/
 
 	public void onBtnStart_Click(ActionEvent event) {
+		if (isRunInConsole && event instanceof WSActionEvent) {
+			init(((WSActionEvent)event).portNumber);
+			server.start();
+			return;
+		}
+		
 		ErrandBoy.println("btnStart is pressed");
 
 		init();
-
 		server.start();
+		
 		btnStart.setDisable(true);
 		btnStop.setDisable(false);
 	}
 
 	public void onBtnStop_Click(ActionEvent event) {
-		ErrandBoy.println("btnStop is pressed");
+		if (isRunInConsole) {
+			// send all users KICKED_OUT message
+			for (int i = 0; i < server.listClientSockets.size(); i++) {
+				if (server.listClientSockets.get(i).userName != null) {
+					server.listClientSockets.get(i).enqueueMessage(new WSMError(WSMCode.ERR_KICKED_OUT));
+				}
+			}
 
+			try {
+				ErrandBoy.println("Sleep 1 sec to let all the sender-threads to send KICKED_OUT msg");
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				ErrandBoy.printlnError(e, "Error while sleeping before kick out all users");
+			}
+
+			server.stop();
+			server = null;
+			
+			return;
+		}
+		
+		ErrandBoy.println("btnStop is pressed");
 		Platform.runLater(new Runnable() {
 
 			@Override
@@ -90,12 +130,13 @@ public class Controller {
 
 				server.stop();
 				server = null;
-
+				
 				btnStart.setDisable(false);
 
 			}
 		});
 
+		
 		btnStart.setDisable(true);
 		btnStop.setDisable(true);
 	}
@@ -157,6 +198,81 @@ public class Controller {
 				WSMListUsersResp msgNewUserList = chatRoom.genListUsersRespMsg();
 				server.sendAllUsers(msgNewUserList);
 			}
+		}
+	}
+
+	public static void main(String[] args) {
+		
+		//TODO allow user to input PORT NUMBER
+		
+		Controller controller = new Controller();
+		controller.isRunInConsole = true;
+		boolean isRunning = false;
+		ErrandBoy.println("Please enter:\n"
+				+ "    START: to start server\n"
+				+ "    STOP : to stop server\n"
+				+ "    QUIT : to exit this program\n");
+		
+		try {
+			InputStreamReader inputStreamReader = new InputStreamReader(System.in);
+			BufferedReader reader = new BufferedReader(inputStreamReader);
+			
+			String command;
+			boolean isQuit =false;
+			while (!isQuit) {
+				command = reader.readLine().toUpperCase().trim();
+				
+				switch (command) {
+				case "START":
+					if (isRunning) {
+						ErrandBoy.println("Server is already running.");
+						break;
+					}
+					
+					int port;
+					try {
+						ErrandBoy.println("Enter a port number: ");
+						port = Integer.valueOf(reader.readLine());
+					} catch (Exception e) {
+						ErrandBoy.printlnError(e, "Error while parsing port number, use default port " + WSSettings._DEFAULT_PORT);
+						port = WSSettings._DEFAULT_PORT;
+					}
+					
+					ErrandBoy.println("Starting server...");
+					isRunning = true;
+					
+					WSActionEvent event = new WSActionEvent(port);
+					controller.onBtnStart_Click(event);
+					break;
+
+				case "STOP":
+					if (!isRunning) {
+						ErrandBoy.println("Server is not running.");
+						break;
+					}
+					
+					ErrandBoy.println("Stopping server...");
+					isRunning = false;
+					controller.onBtnStop_Click(null);
+					break;
+				case "QUIT":
+					if (isRunning) {
+						ErrandBoy.println("Server is still running, use STOP first!");
+						break;
+					}
+					
+					isQuit = true;
+					break;
+				default:
+					break;
+				}
+			}
+			
+			reader.close();
+			
+			ErrandBoy.println("Server shut down. Bye!");
+		} catch (Exception e) {
+			ErrandBoy.printlnError(e, "Error while reading user's command");
 		}
 	}
 }
