@@ -11,6 +11,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class WSClientHandler {
 	Socket clientSocket;
 	Thread listener;
+	boolean isDead = false;
 	final BlockingQueue<WSMessage> receivingMsgQueue;
 	
 	/**
@@ -77,10 +78,21 @@ public class WSClientHandler {
 					
 					//reach here means the input stream has reach eof
 					if (readBytes < 0) {
-						ErrandBoy.println("Client " + getName() + " input is EOF, reading is stopped");
-						
-						//TODO remove the user out of WatSup & notify all users
+						ErrandBoy.println("Client " + getName() + " input is EOF, Receiver-thread has stopped");
 					}
+					
+					//notify server about the dead user
+					isDead = true;
+					WSMRemoveDeadUser msg;
+					if (userName != null) {
+						msg = new WSMRemoveDeadUser(userName);
+						msg.clientHandler = myself;
+					} else {
+						msg = new WSMRemoveDeadUser(myself);
+						msg.clientHandler = myself;
+					}
+					receivingMsgQueue.put(msg);	
+					
 				} catch (Exception e) {
 					ErrandBoy.printlnError(e, "Error while reading from client's input stream");
 				} finally {
@@ -110,7 +122,7 @@ public class WSClientHandler {
 						outputStream.write(msg.msgBytes);
 					}
 					
-					ErrandBoy.println("Sender-thread of client " + getName() + " has stopped");
+					ErrandBoy.println("Client " + getName() + " Sender-thread has stopped");
 				} catch (Exception e) {
 					ErrandBoy.printlnError(e, "Error while sending message to client " + getName());
 				}
