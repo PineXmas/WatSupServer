@@ -6,6 +6,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.LinkedBlockingQueue;
 
+/**
+ * This class manage all resources (rooms, user, ...) of WatSup system, including: <br>
+ * - client connection: assign separated sockets and client-handler-threads to different clients <br>
+ * - client communication: receiving/sending messages to clients
+ * 
+ * @author pinex
+ *
+ */
 public class WSServer {
 	
 	/***********************************************
