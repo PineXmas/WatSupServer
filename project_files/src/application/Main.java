@@ -20,6 +20,7 @@ public class Main extends Application {
 			Scene scene = new Scene(root,400,400);
 			scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
 			primaryStage.setScene(scene);
+			primaryStage.setResizable(false);
 			primaryStage.show();
 		} catch(Exception e) {
 			e.printStackTrace();
@@ -38,7 +39,7 @@ public class Main extends Application {
 			primaryStage.setScene(scene);
 			
 			//display stage
-			primaryStage.setTitle("WatSup Server Viewer");
+			primaryStage.setTitle("WatSup Server Admin");
 			primaryStage.show();
 		} catch(Exception e) {
 			e.printStackTrace();

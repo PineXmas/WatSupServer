@@ -11,6 +11,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class WSClientHandler {
 	Socket clientSocket;
 	Thread listener;
+	boolean isDead = false;
 	final BlockingQueue<WSMessage> receivingMsgQueue;
 	
 	/**
@@ -77,14 +78,35 @@ public class WSClientHandler {
 					
 					//reach here means the input stream has reach eof
 					if (readBytes < 0) {
-						ErrandBoy.println("Client " + getName() + " input is EOF, reading is stopped");
-						
-						//TODO remove the user out of WatSup & notify all users
+						ErrandBoy.println("Client " + getName() + " input is EOF, Receiver-thread has stopped");
 					}
+					
+
+					isDead = true;
+					
 				} catch (Exception e) {
 					ErrandBoy.printlnError(e, "Error while reading from client's input stream");
+					isDead = true;
 				} finally {
-					// TODO finalize client socket after error occurs
+					
+					if (!isDead) {
+						return;
+					}
+					
+					//notify server about the dead user
+					WSMRemoveDeadUser msg;
+					if (userName != null) {
+						msg = new WSMRemoveDeadUser(userName);
+						msg.clientHandler = myself;
+					} else {
+						msg = new WSMRemoveDeadUser(myself);
+						msg.clientHandler = myself;
+					}
+					try {
+						receivingMsgQueue.put(msg);
+					} catch (InterruptedException e) {
+						ErrandBoy.printlnError(e, "Error while enqueueing REMOVE_DEAD_USER msg for user " + getName());
+					}
 				}
 				
 			}
@@ -110,7 +132,7 @@ public class WSClientHandler {
 						outputStream.write(msg.msgBytes);
 					}
 					
-					ErrandBoy.println("Sender-thread of client " + getName() + " has stopped");
+					ErrandBoy.println("Client " + getName() + " Sender-thread has stopped");
 				} catch (Exception e) {
 					ErrandBoy.printlnError(e, "Error while sending message to client " + getName());
 				}

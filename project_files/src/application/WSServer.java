@@ -6,6 +6,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.LinkedBlockingQueue;
 
+/**
+ * This class manage all resources (rooms, user, ...) of WatSup system, including: <br>
+ * - client connection: assign separated sockets and client-handler-threads to different clients <br>
+ * - client communication: receiving/sending messages to clients
+ * 
+ * @author pinex
+ *
+ */
 public class WSServer {
 	
 	/***********************************************
@@ -59,8 +67,6 @@ public class WSServer {
 				}
 				
 				try {
-
-					// TODO right now the only way to stop this thread is to interrupt it from outside. Consider keep/improve this
 					
 					//mark the server in being running
 					synchronized (isServerRunning) {
@@ -120,6 +126,40 @@ public class WSServer {
 					
 					while ( !((msg = receivingMsgQueue.take()) instanceof WSMStopSerer)) {
 						try {
+							
+							/*
+							 * Remove dead user/socket
+							 */
+							if (msg instanceof WSMRemoveDeadUser) {
+								WSMRemoveDeadUser msgRemoveDeadUser = (WSMRemoveDeadUser)msg;
+								if (msgRemoveDeadUser.hasUserName()) {
+									//case 01: act as a LOG_OUT message
+									ErrandBoy.println("Remove dead user: " + msgRemoveDeadUser.userName);
+									
+									ArrayList<ChatRoom> listJoinedRooms = removeUser(msgRemoveDeadUser.userName);
+
+									sendAllUsers(genListUsersAllMsg());
+									
+									for (ChatRoom chatRoom : listJoinedRooms) {
+										WSMListUsersResp msgNewUserList = chatRoom.genListUsersRespMsg();
+										sendAllUsers(msgNewUserList);
+									}
+								} else {
+									//case 02: remove the socket
+									ErrandBoy.println("Remove dead socket: " + msgRemoveDeadUser.clientHandler.getName());
+									
+									for (int i = 0; i < listClientSockets.size(); i++) {
+										if (listClientSockets.get(i) == msgRemoveDeadUser.userHandler) {
+											msgRemoveDeadUser.userHandler.stop();
+											listClientSockets.remove(i);
+											break;
+										}
+									}
+								}
+								
+								continue;
+							}
+							
 							ErrandBoy.println("Client " + msg.clientHandler.getName() + " sent: " + msg.toString());
 
 							//do nothing if the message (somehow) does not have any bound client-handler
@@ -178,19 +218,20 @@ public class WSServer {
 							case OPCODE_LOGOUT:
 								/*
 								 * - remove the user out of WatSup
+								 * - send LIST_USERS_ALL to all users in WatSup since list of all users has changed
 								 * - remove the user out of its joined rooms
-								 * 		* for each such room, notify all users in the room know
-								 * - send LIST_USERS_ALL to all users in WatSup since list of all users has changed		
+								 * 		* for each such room, notify all users in WatSup
 								 */
 								WSMLogout msgLogout = (WSMLogout) msg;
 								ArrayList<ChatRoom> listJoinedRooms = removeUser(msgLogout.clientHandler.userName);
+
+								sendAllUsers(genListUsersAllMsg());
+								
 								for (ChatRoom chatRoom : listJoinedRooms) {
 									WSMListUsersResp msgNewUserList = chatRoom.genListUsersRespMsg();
-									for (WSClientHandler clientHandler : chatRoom.listUsers) {
-										clientHandler.enqueueMessage(msgNewUserList);
-									}
+									sendAllUsers(msgNewUserList);
 								}
-								sendAllUsers(genListUsersAllMsg());
+								
 								
 								break;
 								
@@ -224,7 +265,7 @@ public class WSServer {
 									 if (foundRoom.addUser(msgJoinRoom.clientHandler)) {
 										 //notify all users in the room if this new user is added successfully
 										 
-										 sendMsg2Users(foundRoom.genListUsersRespMsg() , foundRoom.listUsers);
+										 sendAllUsers(foundRoom.genListUsersRespMsg());
 									 }
 									 
 								} else {
@@ -262,7 +303,8 @@ public class WSServer {
 									break;
 								}
 								aRoom.removeUser(found);
-								sendMsg2Users(aRoom.genListUsersRespMsg(), aRoom.listUsers);
+								
+								sendAllUsers(aRoom.genListUsersRespMsg());
 								
 								break;
 								
@@ -409,6 +451,14 @@ public class WSServer {
 		return -1;
 	}
 
+	/**
+	 * Search for the user in the server's client-list.
+	 */
+	public int searchUser(String userName) {
+		return searchUser(userName, listClientSockets);
+	}
+
+	
 	/**
 	 * Search for the given room.
 	 */
